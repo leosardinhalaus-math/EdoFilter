@@ -1,0 +1,3438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>EDO Filter // Cold War Covert Ops</title>
+  <style>
+    :root {
+      --bg: #0b1017;
+      --bg-darker: #070a0f;
+      --panel: rgba(22, 32, 46, 0.92);
+      --panel-solid: #151f2d;
+      --panel-glass: rgba(18, 27, 40, 0.75);
+      --border: #283950;
+      --border-bright: #3e5677;
+      --text: #e6e9ef;
+      --text-muted: #8c9cb3;
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.25);
+      --red: #ef4444;
+      --red-glow: rgba(239, 68, 68, 0.3);
+      --teal: #14b8a6;
+      --teal-glow: rgba(20, 184, 166, 0.25);
+      --orange: #f97316;
+      --violet: #a855f7;
+      --font-title: 'Trebuchet MS', -apple-system, sans-serif;
+      --font-math: 'Georgia', 'Cambria', serif;
+      --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: env(safe-area-inset-top, 8px) env(safe-area-inset-right, 8px) env(safe-area-inset-bottom, 8px) env(safe-area-inset-left, 8px);
+      overflow-x: hidden;
+    }
+
+    #app-container {
+      width: 100%;
+      max-width: 560px;
+      position: relative;
+      background: var(--bg-darker);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      min-height: calc(100vh - 16px);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255,255,255,0.03);
+      overflow: hidden;
+    }
+
+    /* Ambient Scanline overlay */
+    .scanlines {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none; z-index: 999;
+      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.18) 51%, rgba(0,0,0,0.18));
+      background-size: 100% 3px;
+      opacity: 0.45;
+    }
+
+    /* Modern Command Header */
+    header.tactical-header {
+      background: var(--panel-glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-branding {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .manga-header-thumb {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1.5px solid var(--teal);
+      overflow: hidden;
+      box-shadow: 0 0 8px var(--teal-glow);
+      flex-shrink: 0;
+      background: #0d1520;
+    }
+
+    .manga-header-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .header-titles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-family: var(--font-title);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: var(--teal);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-sub {
+      font-size: 9px;
+      font-family: var(--font-mono);
+      color: var(--amber);
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-header {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-header:hover, .btn-header:active {
+      color: var(--teal);
+      border-color: var(--teal);
+      background: var(--teal-glow);
+    }
+
+    /* Screen Layout */
+    .screen {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+    }
+
+    /* Modern Cards */
+    .modern-card {
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      position: relative;
+    }
+
+    .card-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* DEFCON Badge */
+    .defcon-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--red);
+      color: var(--red);
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 6px var(--red-glow);
+    }
+
+    .defcon-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: pulse-dot 1.2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* Mode Selector Buttons */
+    .mode-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .mode-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      padding: 9px 4px;
+      font-family: var(--font-title);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mode-btn:hover {
+      border-color: var(--border-bright);
+      color: var(--text);
+    }
+
+    .mode-btn.active {
+      background: rgba(20, 184, 166, 0.12);
+      border-color: var(--teal);
+      color: var(--teal);
+      box-shadow: 0 0 10px var(--teal-glow);
+    }
+
+    .mode-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.45;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 9px 12px;
+      border-radius: 6px;
+      border-left: 3px solid var(--teal);
+      margin-bottom: 14px;
+    }
+
+    /* Cold War Strategic Map Theater */
+    .cold-war-theater {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #060b11;
+      height: 200px;
+      margin-bottom: 14px;
+    }
+
+    .cold-war-bg-img {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0.45;
+      filter: saturate(1.2) contrast(1.1);
+    }
+
+    .cold-war-svg-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 5;
+    }
+
+    .radar-sweep-line {
+      transform-origin: 250px 100px;
+      animation: radar-sweep 5s linear infinite;
+    }
+
+    @keyframes radar-sweep {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .missile-marker {
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .missile-marker:hover circle {
+      r: 8;
+      stroke-width: 2.5;
+    }
+
+    /* Mission cards in list */
+    .mission-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mission-item {
+      background: rgba(22, 33, 48, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      cursor: pointer;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      transition: all 0.15s ease;
+    }
+
+    .mission-item:hover, .mission-item.selected {
+      border-color: var(--teal);
+      background: rgba(20, 184, 166, 0.08);
+      transform: translateX(2px);
+    }
+
+    .mission-item.completed {
+      border-left: 4px solid var(--teal);
+    }
+
+    .manga-avatar-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border-bright);
+      overflow: hidden;
+      flex-shrink: 0;
+      background: #0d1520;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .manga-avatar-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .manga-avatar-badge svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .mission-meta-block {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .mission-headline {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mission-id-tag {
+      font-family: var(--font-title);
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--teal);
+    }
+
+    .mission-title-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .mission-weapon-tag {
+      font-size: 10px;
+      color: var(--amber);
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .mission-status-col {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .record-pill {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .cleared-badge {
+      font-size: 9px;
+      font-family: var(--font-title);
+      color: var(--teal);
+      background: rgba(20, 184, 166, 0.15);
+      border: 1px solid var(--teal);
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-weight: bold;
+    }
+
+    /* Briefing Radio Screen */
+    .briefing-box {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .radio-agent-dossier {
+      display: flex;
+      gap: 14px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      align-items: center;
+    }
+
+    .manga-portrait-frame {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      border: 2px solid var(--orange);
+      box-shadow: 0 0 12px rgba(249, 115, 22, 0.3);
+      overflow: hidden;
+      flex-shrink: 0;
+      background: #111a26;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .manga-portrait-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .manga-portrait-frame.lia {
+      border-color: var(--teal);
+      box-shadow: 0 0 12px var(--teal-glow);
+    }
+
+    .manga-portrait-frame.assintota {
+      border-color: var(--violet);
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.35);
+    }
+
+    .dossier-bio {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .dossier-name {
+      font-family: var(--font-title);
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--orange);
+      letter-spacing: 1px;
+    }
+
+    .dossier-title {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .audio-freq-meter {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lemniscata-wave-svg {
+      width: 70px;
+      height: 22px;
+    }
+
+    .briefing-speech-bubble {
+      background: rgba(249, 115, 22, 0.08);
+      border-left: 3px solid var(--orange);
+      border-radius: 0 6px 6px 0;
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: #ede9dc;
+    }
+
+    .weapon-grant-card {
+      background: rgba(20, 184, 166, 0.08);
+      border: 1px dashed var(--teal);
+      border-radius: 6px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--teal);
+    }
+
+    /* Mission Progress Bar at Top of HUD */
+    .mission-progress-container {
+      background: var(--panel-glass);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .mission-progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .mission-progress-title {
+      color: var(--teal);
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .mission-progress-counter {
+      color: var(--amber);
+      font-weight: 700;
+    }
+
+    .mission-progress-track {
+      width: 100%;
+      height: 7px;
+      background: rgba(10, 16, 24, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .mission-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0d9488, #14b8a6, #2dd4bf);
+      border-radius: 3px;
+      transition: width 0.35s ease;
+      box-shadow: 0 0 10px var(--teal-glow);
+    }
+
+    .mission-progress-segments {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+      margin-top: 2px;
+    }
+
+    .progress-seg {
+      flex: 1;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: bold;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 34, 0.6);
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .progress-seg.done {
+      background: rgba(20, 184, 166, 0.2);
+      border-color: var(--teal);
+      color: var(--teal);
+      box-shadow: 0 0 6px var(--teal-glow);
+    }
+
+    .progress-seg.current {
+      background: rgba(245, 158, 11, 0.25);
+      border-color: var(--amber);
+      color: #fff;
+      box-shadow: 0 0 8px var(--amber-glow);
+      animation: pulse-seg 1.5s infinite;
+    }
+
+    @keyframes pulse-seg {
+      0%, 100% { border-color: var(--amber); box-shadow: 0 0 6px var(--amber-glow); }
+      50% { border-color: #fde68a; box-shadow: 0 0 12px var(--amber); }
+    }
+
+    /* Target Combat Screen */
+    .hud-ribbon {
+      background: var(--panel-glass);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-title);
+      font-size: 12px;
+    }
+
+    .hud-target-indicator {
+      font-weight: 800;
+      color: var(--teal);
+      letter-spacing: 0.5px;
+    }
+
+    .hud-score-chip {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid var(--amber);
+      color: var(--amber);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-weight: bold;
+    }
+
+    .hud-alert-monitor {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .alert-lamps {
+      display: flex;
+      gap: 4px;
+    }
+
+    .alert-lamp {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      border: 1px solid var(--red);
+      background: transparent;
+    }
+
+    .alert-lamp.lit {
+      background: var(--red);
+      box-shadow: 0 0 8px var(--red);
+    }
+
+    .timer-strip {
+      width: 100%;
+      height: 5px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: -6px;
+    }
+
+    .timer-fill {
+      height: 100%;
+      width: 100%;
+      background: var(--amber);
+      transition: width 1s linear, background-color 0.3s;
+    }
+
+    .timer-fill.danger {
+      background: var(--red);
+      animation: timer-pulse 0.75s ease-in-out infinite;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.75);
+    }
+
+    @keyframes timer-pulse {
+      0%, 100% {
+        opacity: 1;
+        filter: brightness(1);
+        box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+      }
+      50% {
+        opacity: 0.65;
+        filter: brightness(1.35);
+        box-shadow: 0 0 14px rgba(239, 68, 68, 0.95);
+      }
+    }
+
+    /* Target Card with Manga Enemy Visual */
+    .target-dossier-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      gap: 12px;
+      position: relative;
+    }
+
+    .target-manga-col {
+      width: 90px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .target-portrait-box {
+      width: 90px;
+      height: 90px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border-bright);
+      overflow: hidden;
+      background: #080d14;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .target-portrait-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .target-portrait-box svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .boss-tag-flag {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      background: var(--red);
+      color: #fff;
+      font-size: 8px;
+      font-family: var(--font-title);
+      font-weight: 800;
+      padding: 1px 4px;
+      border-radius: 2px;
+      letter-spacing: 0.5px;
+    }
+
+    .target-data-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .target-name-id {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .target-math-panel {
+      background: rgba(10, 15, 23, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+
+    .target-equation-text {
+      font-family: var(--font-math);
+      font-size: 16px;
+      color: var(--amber);
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .target-pvi-text {
+      font-family: var(--font-math);
+      font-size: 12px;
+      color: #cbd5e1;
+      margin-top: 2px;
+    }
+
+    /* Tangent Scanner Animation */
+    .tangent-scan-strip {
+      height: 24px;
+      background: #04080e;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(40, 57, 80, 0.6);
+      position: relative;
+    }
+
+    .tangent-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Layer interactive card */
+    .layer-action-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .layer-title-badge {
+      font-family: var(--font-title);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--teal);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .layer-prompt {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .options-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .choice-btn {
+      background: rgba(15, 23, 34, 0.85);
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: var(--font-math);
+      font-size: 14px;
+      padding: 11px 13px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      transition: all 0.12s ease;
+    }
+
+    .choice-btn:hover {
+      border-color: var(--border-bright);
+      background: rgba(25, 37, 54, 0.85);
+    }
+
+    .choice-btn.active {
+      border-color: var(--teal);
+      background: rgba(20, 184, 166, 0.12);
+      box-shadow: 0 0 10px var(--teal-glow);
+    }
+
+    .choice-key {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--text-muted);
+      background: #090e15;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .choice-btn.active .choice-key {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    .choice-content {
+      flex: 1;
+      font-style: italic;
+    }
+
+    /* Verification Box */
+    .verification-hub {
+      background: rgba(7, 12, 18, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .verification-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .verification-output {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 8px 10px;
+      border-left: 3px solid var(--amber);
+      background: #0f1622;
+      border-radius: 0 4px 4px 0;
+      color: var(--amber);
+      line-height: 1.45;
+      display: none;
+    }
+
+    .verification-output.active { display: block; }
+    .verification-output.passed { border-color: var(--teal); color: var(--teal); }
+
+    /* Action Buttons */
+    .btn {
+      background: var(--panel-solid);
+      border: 1px solid var(--border-bright);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: var(--font-title);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 11px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      transition: all 0.15s ease;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    .btn-teal {
+      background: #115e59;
+      border-color: var(--teal);
+      color: #ccfbf1;
+      box-shadow: 0 0 12px var(--teal-glow);
+    }
+    .btn-teal:hover { background: #0f766e; }
+
+    .btn-amber {
+      background: #78350f;
+      border-color: var(--amber);
+      color: #fef3c7;
+    }
+
+    .btn-muted {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--border);
+      color: var(--text-muted);
+    }
+
+    .btn-danger {
+      background: #7f1d1d;
+      border-color: var(--red);
+      color: #fee2e2;
+    }
+
+    .footer-action-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Feedback Screen */
+    .feedback-sheet {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      text-align: center;
+    }
+
+    .feedback-status-pill {
+      font-family: var(--font-title);
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid;
+    }
+
+    .feedback-status-pill.success {
+      border-color: var(--teal);
+      color: var(--teal);
+      background: rgba(20, 184, 166, 0.15);
+    }
+
+    .feedback-status-pill.alert {
+      border-color: var(--red);
+      color: var(--red);
+      background: rgba(239, 68, 68, 0.15);
+    }
+
+    .feedback-math-details {
+      font-size: 13.5px;
+      line-height: 1.55;
+      text-align: left;
+      background: rgba(10, 16, 24, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      color: #e2e8f0;
+    }
+
+    .feedback-canvas-box {
+      width: 100%;
+      height: 70px;
+      background: #060b11;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    /* Debrief Results Screen */
+    .results-sheet {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .results-hero-title {
+      font-family: var(--font-title);
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+    }
+
+    .results-hero-title.victory { color: var(--teal); }
+    .results-hero-title.defeat { color: var(--red); }
+
+    .metrics-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .metrics-table td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .metrics-table td:last-child {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-weight: bold;
+      color: var(--amber);
+    }
+
+    /* Shake Animation */
+    @keyframes tactical-shake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-5px, 3px); }
+      40% { transform: translate(5px, -3px); }
+      60% { transform: translate(-3px, -2px); }
+      80% { transform: translate(3px, 2px); }
+    }
+
+    .shake-alert {
+      animation: tactical-shake 0.35s ease;
+    }
+
+    /* --- Tactical Settings Modal Overlay --- */
+    .settings-modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(8, 14, 24, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      animation: modal-fade-in 0.22s ease-out;
+    }
+
+    @keyframes modal-fade-in {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .settings-window {
+      background: var(--panel);
+      border: 1.5px solid var(--border-bright);
+      border-radius: 12px;
+      max-width: 520px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 24px rgba(20, 184, 166, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 18px 20px;
+      position: relative;
+    }
+
+    .settings-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .settings-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .settings-title {
+      font-family: var(--font-title);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--teal);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .settings-subtitle {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .settings-close-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .settings-close-btn:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .settings-group-card {
+      background: rgba(10, 16, 24, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .settings-group-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .settings-group-label {
+      font-family: var(--font-title);
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .multiplier-pill {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(20, 184, 166, 0.15);
+      border: 1px solid var(--teal);
+      color: var(--teal);
+    }
+
+    .multiplier-pill.amber {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .settings-desc-text {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .tactical-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tactical-range-slider {
+      flex: 1;
+      accent-color: var(--teal);
+      cursor: pointer;
+      height: 6px;
+      border-radius: 3px;
+    }
+
+    .preset-chip-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .preset-chip {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .preset-chip:hover, .preset-chip.active {
+      background: rgba(20, 184, 166, 0.2);
+      border-color: var(--teal);
+      color: var(--teal);
+      font-weight: bold;
+    }
+
+    .settings-telemetry-box {
+      background: rgba(6, 11, 17, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .telemetry-val {
+      color: var(--amber);
+      font-weight: bold;
+    }
+
+    .settings-action-row {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      padding-top: 4px;
+    }
+
+    .menu-settings-banner {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px dashed var(--border-bright);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .menu-settings-banner:hover {
+      background: rgba(20, 184, 166, 0.08);
+      border-color: var(--teal);
+    }
+
+    .settings-banner-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .settings-gear-icon {
+      font-size: 20px;
+      color: var(--teal);
+    }
+
+    .settings-banner-title {
+      font-family: var(--font-title);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .settings-banner-desc {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-top: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="scanlines" id="scanlines-overlay"></div>
+
+  <div id="app-container">
+    <!-- Modern Command Header -->
+    <header class="tactical-header">
+      <div class="header-branding" onclick="game.goHome()">
+        <div class="manga-header-thumb">
+          <img src="img/manga_lia.jpg" alt="Agente Lia Leibniz" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+          <!-- Fallback Manga SVG Vector Avatar -->
+          <svg viewBox="0 0 32 32" style="display:none;width:100%;height:100%">
+            <rect width="32" height="32" fill="#0d1b2a"/>
+            <circle cx="16" cy="14" r="8" fill="#fbcfe8"/>
+            <path d="M8,12 C8,7 13,5 16,5 C20,5 24,7 24,12 C24,15 22,17 22,17 L10,17 Z" fill="#1e293b"/>
+            <ellipse cx="13" cy="14" rx="1.5" ry="2" fill="#14b8a6"/>
+            <ellipse cx="19" cy="14" rx="1.5" ry="2" fill="#14b8a6"/>
+            <path d="M10,24 C10,20 13,19 16,19 C19,19 22,20 22,24 L22,32 L10,32 Z" fill="#0f172a"/>
+          </svg>
+        </div>
+        <div class="header-titles">
+          <div class="brand-title">EDO FILTER <span style="font-size:10px;opacity:0.75">// CORTINA DE FERRO</span></div>
+          <div class="brand-sub">OP. COVERT OPS // CÁLCULO 2 (STEWART)</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-header" onclick="game.openSettings()" title="Ajustes Avançados">
+          <span>⚙ CONFIG</span>
+        </button>
+        <button class="btn-header" id="sound-btn" onclick="game.toggleSound()" title="Áudio">
+          <span id="sound-icon">SND: ON</span>
+        </button>
+        <button class="btn-header" onclick="game.toggleScanlines()" title="Linhas CRT">CRT</button>
+      </div>
+    </header>
+
+    <!-- Advanced Settings Modal Overlay -->
+    <div id="settings-overlay" class="settings-modal-backdrop" style="display:none;" onclick="if(event.target===this) game.closeSettings()">
+      <div class="settings-window">
+        <div class="settings-header-bar">
+          <div class="settings-title-group">
+            <div class="settings-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+              AJUSTES AVANÇADOS // PARÂMETROS
+            </div>
+            <div class="settings-subtitle">MODIFICADORES TÁTICOS DE DIFICULDADE (STEWART CÁLCULO 2)</div>
+          </div>
+          <button class="settings-close-btn" onclick="game.closeSettings()" title="Fechar">✕</button>
+        </div>
+
+        <!-- Timer Speed Multiplier Section -->
+        <div class="settings-group-card">
+          <div class="settings-group-head">
+            <span class="settings-group-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42C16.07 4.74 14.12 4 12 4c-4.97 0-9 4.03-9 9s4.02 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+              TIMER SPEED MULTIPLIER
+            </span>
+            <span id="setting-timer-badge" class="multiplier-pill">1.00x</span>
+          </div>
+          <div class="settings-desc-text">
+            Ajusta a taxa de esgotamento do tempo na contagem regressiva de 30s no Modo Veterano. Valores mais altos aceleram o temporizador e ativam antecipadamente a pulsação de perigo crítico abaixo de 10s.
+          </div>
+          <div class="tactical-slider-row">
+            <span style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted)">0.5x</span>
+            <input type="range" id="setting-timer-slider" class="tactical-range-slider" min="0.5" max="2.5" step="0.25" value="1.0" oninput="game.setTimerSpeed(this.value)">
+            <span style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted)">2.5x</span>
+          </div>
+          <div class="preset-chip-group">
+            <button class="preset-chip preset-chip-speed" data-val="0.5" onclick="game.setTimerSpeed(0.5)">0.5x [Suave / 60s]</button>
+            <button class="preset-chip preset-chip-speed" data-val="1.0" onclick="game.setTimerSpeed(1.0)">1.0x [Padrão / 30s]</button>
+            <button class="preset-chip preset-chip-speed" data-val="1.5" onclick="game.setTimerSpeed(1.5)">1.5x [Acelerado / 20s]</button>
+            <button class="preset-chip preset-chip-speed" data-val="2.0" onclick="game.setTimerSpeed(2.0)">2.0x [Extremo / 15s]</button>
+          </div>
+          <div id="setting-timer-desc" style="font-size:11px;font-family:var(--font-mono);color:var(--amber)"></div>
+        </div>
+
+        <!-- Math Complexity Multiplier Section -->
+        <div class="settings-group-card">
+          <div class="settings-group-head">
+            <span class="settings-group-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+              MATH COMPLEXITY MULTIPLIER
+            </span>
+            <span id="setting-comp-badge" class="multiplier-pill amber">1.00x</span>
+          </div>
+          <div class="settings-desc-text">
+            Escalona a complexidade das equações diferenciais geradas procedimentalmente: modifica coeficientes angulares, constantes iniciais do PVI, ordens de amortecimento harmônico e distratores.
+          </div>
+          <div class="tactical-slider-row">
+            <span style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted)">0.75x</span>
+            <input type="range" id="setting-comp-slider" class="tactical-range-slider" min="0.75" max="2.0" step="0.25" value="1.0" oninput="game.setMathComplexity(this.value)">
+            <span style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted)">2.0x</span>
+          </div>
+          <div class="preset-chip-group">
+            <button class="preset-chip preset-chip-comp" data-val="0.75" onclick="game.setMathComplexity(0.75)">0.75x [Básico]</button>
+            <button class="preset-chip preset-chip-comp" data-val="1.0" onclick="game.setMathComplexity(1.0)">1.0x [Stewart Padrão]</button>
+            <button class="preset-chip preset-chip-comp" data-val="1.5" onclick="game.setMathComplexity(1.5)">1.5x [Avançado]</button>
+            <button class="preset-chip preset-chip-comp" data-val="2.0" onclick="game.setMathComplexity(2.0)">2.0x [Pesadelo]</button>
+          </div>
+          <div id="setting-comp-desc" style="font-size:11px;font-family:var(--font-mono);color:var(--teal)"></div>
+        </div>
+
+        <!-- Real-time Tactical Telemetry & Equation Preview -->
+        <div class="settings-telemetry-box">
+          <div style="font-weight:bold;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:4px;display:flex;justify-content:space-between">
+            <span>TELEMETRIA DE CALIBRAÇÃO PROCEDURAL</span>
+            <span id="telem-tier-val" style="color:var(--teal)">EQUILIBRADO PADRÃO</span>
+          </div>
+          <div class="telemetry-row">
+            <span style="color:var(--text-muted)">Taxa Timer:</span>
+            <span id="telem-timer-val" class="telemetry-val">1.00x (30s)</span>
+          </div>
+          <div class="telemetry-row">
+            <span style="color:var(--text-muted)">Escalar Complexidade:</span>
+            <span id="telem-comp-val" class="telemetry-val">1.00x</span>
+          </div>
+          <div style="margin-top:4px">
+            <span style="color:var(--text-muted)">Exemplo Procedural em Tempo Real:</span>
+            <div id="telem-sample-eq" style="color:var(--text);margin-top:2px;font-size:10.5px;background:rgba(0,0,0,0.5);padding:6px;border-radius:4px;border:1px solid var(--border)">
+              y″ + 4y′ + 13y = 0  (r = -2 ± 3i)
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="settings-action-row">
+          <button class="btn btn-muted" style="padding:8px 14px;font-size:12px" onclick="game.resetSettings()">RESTAURAR PADRÕES</button>
+          <button class="btn btn-muted" style="padding:8px 14px;font-size:12px" onclick="game.closeSettings()">CANCELAR</button>
+          <button class="btn btn-teal" style="padding:8px 18px;font-size:12px" onclick="game.saveSettings()">SALVAR & APLICAR</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main id="main-content" class="screen"></main>
+  </div>
+
+  <script>
+    /* =======================================================================
+       EDO FILTER // MOTOR MATEMÁTICO, GUERRA FRIA & ESTILO MANGÁ
+       ======================================================================= */
+
+    // --- Procedural Tactical Audio ---
+    class TacticalAudio {
+      constructor() { this.ctx = null; this.enabled = true; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      play(type) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain); gain.connect(this.ctx.destination);
+
+        if (type === 'beep' || type === 'click') {
+          osc.type = 'triangle'; osc.frequency.setValueAtTime(type === 'beep' ? 920 : 540, now);
+          gain.gain.setValueAtTime(0.06, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.start(now); osc.stop(now + 0.05);
+        } else if (type === 'scan') {
+          osc.type = 'sine'; osc.frequency.setValueAtTime(420, now); osc.frequency.linearRampToValueAtTime(1180, now + 0.22);
+          gain.gain.setValueAtTime(0.07, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+          osc.start(now); osc.stop(now + 0.22);
+        } else if (type === 'correct') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.08);
+          osc.frequency.setValueAtTime(783.99, now + 0.16);
+          gain.gain.setValueAtTime(0.09, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.start(now); osc.stop(now + 0.35);
+        } else if (type === 'alert') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.setValueAtTime(130, now + 0.12);
+          gain.gain.setValueAtTime(0.16, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.start(now); osc.stop(now + 0.35);
+        } else if (type === 'radio') {
+          osc.type = 'sawtooth'; osc.frequency.setValueAtTime(1200, now);
+          gain.gain.setValueAtTime(0.04, now); gain.gain.linearRampToValueAtTime(0.001, now + 0.06);
+          osc.start(now); osc.stop(now + 0.06);
+        }
+      }
+    }
+    const audio = new TacticalAudio();
+
+    // --- Math & Numerical Differentiation Helpers ---
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function randChoice(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function deriv1(fn, x, h = 1e-4) { return (fn(x + h) - fn(x - h)) / (2 * h); }
+    function deriv2(fn, x, h = 1e-3) { return (fn(x + h) - 2 * fn(x) + fn(x - h)) / (h * h); }
+
+    function getMathComplexity() {
+      if (typeof window !== 'undefined' && window.game && window.game.settings && typeof window.game.settings.mathComplexity === 'number') {
+        return window.game.settings.mathComplexity;
+      }
+      return 1.0;
+    }
+
+    // --- Vector Manga Character Generator Functions ---
+    function getMangaAvatarSvg(type) {
+      if (type === 'lia') {
+        return `
+          <svg viewBox="0 0 80 80">
+            <rect width="80" height="80" fill="#0b1320"/>
+            <!-- Manga Hair Back -->
+            <path d="M15,40 C10,20 20,8 40,8 C60,8 70,20 65,40 C62,55 58,60 58,60 L22,60 Z" fill="#1e293b"/>
+            <!-- Neck & Face -->
+            <polygon points="35,48 45,48 43,58 37,58" fill="#fbcfe8"/>
+            <path d="M22,25 C22,42 28,52 40,52 C52,52 58,42 58,25 C58,15 50,14 40,14 C30,14 22,15 22,25 Z" fill="#fde2e4"/>
+            <!-- Big Expressive Manga Eyes -->
+            <ellipse cx="31" cy="30" rx="4.5" ry="6" fill="#0f172a"/>
+            <ellipse cx="49" cy="30" rx="4.5" ry="6" fill="#0f172a"/>
+            <ellipse cx="31" cy="31" rx="3.5" ry="4.5" fill="#14b8a6"/>
+            <ellipse cx="49" cy="31" rx="3.5" ry="4.5" fill="#14b8a6"/>
+            <circle cx="32.5" cy="28.5" r="1.5" fill="#ffffff"/>
+            <circle cx="50.5" cy="28.5" r="1.5" fill="#ffffff"/>
+            <circle cx="30" cy="33" r="0.8" fill="#ffffff"/>
+            <circle cx="48" cy="33" r="0.8" fill="#ffffff"/>
+            <!-- Manga Eyelashes & Brows -->
+            <path d="M25,24 Q32,20 37,24" fill="none" stroke="#0f172a" stroke-width="2"/>
+            <path d="M43,24 Q48,20 55,24" fill="none" stroke="#0f172a" stroke-width="2"/>
+            <path d="M26,19 Q32,16 36,19" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+            <path d="M44,19 Q48,16 54,19" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+            <!-- Nose & Mouth -->
+            <circle cx="40" cy="38" r="0.8" fill="#d97706"/>
+            <path d="M38,43 Q40,45 42,43" fill="none" stroke="#e11d48" stroke-width="1.5"/>
+            <!-- Spiky Manga Front Bangs -->
+            <polygon points="18,22 28,34 32,18" fill="#334155"/>
+            <polygon points="30,16 38,36 44,16" fill="#1e293b"/>
+            <polygon points="42,18 48,34 60,20" fill="#334155"/>
+            <!-- Cyber Tactical Headset / Scouter with dy/dx -->
+            <rect x="54" y="26" width="6" height="10" rx="2" fill="#14b8a6"/>
+            <path d="M57,36 L52,44 L46,44" fill="none" stroke="#14b8a6" stroke-width="1.5"/>
+            <circle cx="45" cy="44" r="1.5" fill="#f59e0b"/>
+            <!-- Suit Collar -->
+            <path d="M20,58 L40,64 L60,58 L68,80 L12,80 Z" fill="#0f172a"/>
+            <path d="M36,60 L40,65 L44,60" fill="none" stroke="#14b8a6" stroke-width="2"/>
+          </svg>`;
+      } else if (type === 'bernoulli') {
+        return `
+          <svg viewBox="0 0 80 80">
+            <rect width="80" height="80" fill="#17120a"/>
+            <!-- Wild Spiky Anime Gray Hair -->
+            <polygon points="10,35 25,12 35,25 45,5 55,25 70,15 65,45 15,45" fill="#94a3b8"/>
+            <polygon points="5,25 20,8 28,18" fill="#cbd5e1"/>
+            <polygon points="52,18 60,8 75,25" fill="#cbd5e1"/>
+            <!-- Face -->
+            <polygon points="35,48 45,48 43,58 37,58" fill="#fed7aa"/>
+            <path d="M24,28 C24,46 30,54 40,54 C50,54 56,46 56,28 Z" fill="#ffedd5"/>
+            <!-- Beard -->
+            <path d="M28,42 C30,56 50,56 52,42 C54,54 40,60 28,42 Z" fill="#e2e8f0"/>
+            <!-- Glowing Round Anime Glasses with Lemniscata (Infinity) -->
+            <circle cx="32" cy="32" r="7" fill="none" stroke="#f97316" stroke-width="2"/>
+            <circle cx="48" cy="32" r="7" fill="none" stroke="#f97316" stroke-width="2"/>
+            <line x1="39" y1="32" x2="41" y2="32" stroke="#f97316" stroke-width="2"/>
+            <!-- Eyes Behind Glasses -->
+            <circle cx="32" cy="32" r="3" fill="#0284c7"/>
+            <circle cx="48" cy="32" r="3" fill="#0284c7"/>
+            <circle cx="33" cy="31" r="1" fill="#ffffff"/>
+            <circle cx="49" cy="31" r="1" fill="#ffffff"/>
+            <!-- Smile & Headset with Orange Glow -->
+            <path d="M36,46 Q40,50 44,46" fill="none" stroke="#9a3412" stroke-width="2"/>
+            <rect x="16" y="26" width="6" height="14" rx="3" fill="#f97316"/>
+            <rect x="58" y="26" width="6" height="14" rx="3" fill="#f97316"/>
+            <path d="M20,26 A22,22 0 0,1 60,26" fill="none" stroke="#f97316" stroke-width="2.5"/>
+            <!-- Cyber Lab Coat with Lemniscata ∞ -->
+            <path d="M18,58 L40,64 L62,58 L70,80 L10,80 Z" fill="#e2e8f0"/>
+            <path d="M34,68 C34,65 38,65 40,68 C42,71 46,71 46,68 C46,65 42,65 40,68 C38,71 34,71 34,68 Z" fill="none" stroke="#f97316" stroke-width="1.8"/>
+          </svg>`;
+      } else if (type === 'assintota') {
+        return `
+          <svg viewBox="0 0 80 80">
+            <rect width="80" height="80" fill="#120c1a"/>
+            <!-- Sleek Dark Hair with Silver Streak -->
+            <path d="M16,45 C12,18 25,8 40,8 C58,8 68,18 64,45 L58,62 L22,62 Z" fill="#1e1b4b"/>
+            <path d="M30,8 C33,18 36,32 34,44 L29,40 C31,28 30,18 28,10 Z" fill="#e2e8f0"/>
+            <!-- Face -->
+            <path d="M25,25 C25,44 32,54 40,54 C48,54 55,44 55,25 Z" fill="#fce7f3"/>
+            <!-- Sharp Crimson Anime Eyes -->
+            <polygon points="28,29 36,27 34,33 29,32" fill="#b91c1c"/>
+            <polygon points="44,27 52,29 51,32 46,33" fill="#b91c1c"/>
+            <circle cx="32" cy="30" r="1" fill="#ffffff"/>
+            <circle cx="48" cy="30" r="1" fill="#ffffff"/>
+            <!-- Arched Eyebrows & Smirk -->
+            <path d="M27,24 Q33,20 37,25" fill="none" stroke="#4c1d95" stroke-width="1.8"/>
+            <path d="M43,25 Q47,20 53,24" fill="none" stroke="#4c1d95" stroke-width="1.8"/>
+            <path d="M38,44 Q43,45 45,41" fill="none" stroke="#991b1b" stroke-width="1.8"/>
+            <!-- High Collar Trench Coat & Glowing Asymptote Pendant -->
+            <polygon points="20,54 36,58 34,80 10,80" fill="#1e1b4b"/>
+            <polygon points="60,54 44,58 46,80 70,80" fill="#1e1b4b"/>
+            <line x1="32" y1="70" x2="48" y2="70" stroke="#a855f7" stroke-dasharray="2" stroke-width="1.5"/>
+            <path d="M34,78 Q38,72 48,71" fill="none" stroke="#f43f5e" stroke-width="2"/>
+          </svg>`;
+      } else if (type === 'lotka-volterra') {
+        return `
+          <svg viewBox="0 0 80 80">
+            <rect width="80" height="80" fill="#180e14"/>
+            <!-- Twin 1: Red Predator Hunter -->
+            <circle cx="28" cy="32" r="14" fill="#fed7aa"/>
+            <path d="M16,28 C16,14 26,12 36,20 L38,36 L18,36 Z" fill="#7f1d1d"/>
+            <ellipse cx="26" cy="32" rx="3" ry="4" fill="#ef4444"/>
+            <circle cx="27" cy="31" r="1" fill="#fff"/>
+            <path d="M12,48 L22,42 L24,56 Z" fill="#ef4444"/> <!-- Claw -->
+            <!-- Twin 2: Blue Prey Rabbit Ears -->
+            <circle cx="52" cy="32" r="14" fill="#fed7aa"/>
+            <path d="M42,20 C52,12 64,14 64,28 L62,36 L42,36 Z" fill="#1e3a8a"/>
+            <polygon points="46,12 50,0 54,12" fill="#3b82f6"/> <!-- Ear -->
+            <polygon points="56,12 60,0 64,12" fill="#3b82f6"/> <!-- Ear -->
+            <ellipse cx="54" cy="32" rx="3" ry="4" fill="#38bdf8"/>
+            <circle cx="55" cy="31" r="1" fill="#fff"/>
+            <!-- Looping Phase Cable Between Them -->
+            <path d="M28,48 C20,68 60,68 52,48 C44,28 36,28 28,48 Z" fill="none" stroke="#f59e0b" stroke-width="2"/>
+          </svg>`;
+      } else if (type === 'hooke') {
+        return `
+          <svg viewBox="0 0 80 80">
+            <rect width="80" height="80" fill="#161510"/>
+            <!-- Heavy Mechanic Anime Exosuit with Giant Springs -->
+            <circle cx="40" cy="32" r="16" fill="#fde68a"/>
+            <!-- Welding Goggles on Forehead -->
+            <circle cx="34" cy="22" r="5" fill="#f59e0b" stroke="#78350f" stroke-width="2"/>
+            <circle cx="46" cy="22" r="5" fill="#f59e0b" stroke="#78350f" stroke-width="2"/>
+            <!-- Determined Grin -->
+            <rect x="33" y="32" width="4" height="5" fill="#1e293b"/>
+            <rect x="43" y="32" width="4" height="5" fill="#1e293b"/>
+            <line x1="35" y1="42" x2="45" y2="42" stroke="#78350f" stroke-width="2"/>
+            <!-- Coiled Springs along Shoulders (Hooke's Law F = -kx) -->
+            <path d="M12,45 L18,48 L14,52 L20,56 L16,60 L22,64" fill="none" stroke="#f59e0b" stroke-width="3"/>
+            <path d="M68,45 L62,48 L66,52 L60,56 L64,60 L58,64" fill="none" stroke="#f59e0b" stroke-width="3"/>
+            <rect x="24" y="52" width="32" height="28" fill="#334155" stroke="#f59e0b" stroke-width="2"/>
+          </svg>`;
+      } else if (type === 'kirchhoff') {
+        return `
+          <svg viewBox="0 0 80 80">
+            <rect width="80" height="80" fill="#0c1724"/>
+            <!-- Tall Thin Electric Anime Engineer -->
+            <circle cx="40" cy="30" r="14" fill="#e0f2fe"/>
+            <!-- Electric Spiky Blue Hair -->
+            <polygon points="26,22 18,8 32,16 40,4 48,16 62,8 54,22" fill="#0284c7"/>
+            <!-- Glowing Lightning Eyes -->
+            <polygon points="32,28 37,26 35,33" fill="#38bdf8"/>
+            <polygon points="43,26 48,28 45,33" fill="#38bdf8"/>
+            <!-- Glowing PCB Circuit Traces on Cheeks -->
+            <path d="M26,35 L30,35 L32,40" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+            <path d="M54,35 L50,35 L48,40" fill="none" stroke="#00f0ff" stroke-width="1.5"/>
+            <!-- Sparking Nodes & Circuit Collar (Σ I = 0) -->
+            <polygon points="20,52 40,58 60,52 65,80 15,80" fill="#0f172a"/>
+            <circle cx="40" cy="65" r="4" fill="#38bdf8"/>
+            <line x1="28" y1="65" x2="52" y2="65" stroke="#00f0ff" stroke-width="2"/>
+            <polygon points="25,62 22,65 25,68" fill="#00f0ff"/>
+            <polygon points="55,62 58,65 55,68" fill="#00f0ff"/>
+          </svg>`;
+      } else if (type === 'frobenius') {
+        return `
+          <svg viewBox="0 0 80 80">
+            <rect width="80" height="80" fill="#170c24"/>
+            <!-- Mistic Series Grandmaster with Infinity Visor -->
+            <path d="M20,70 L24,20 C24,10 56,10 56,20 L60,70 Z" fill="#2e1065"/>
+            <!-- Mirrored Infinity Visor Face -->
+            <rect x="30" y="26" width="20" height="12" rx="4" fill="#facc15" stroke="#d97706" stroke-width="1.5"/>
+            <path d="M34,32 C34,29 38,29 40,32 C42,35 46,35 46,32 C46,29 42,29 40,32 C38,35 34,35 34,32 Z" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+            <!-- Orbiting Power Series Shards (1, x, x², x³/3! ...) -->
+            <circle cx="16" cy="30" r="3" fill="#c084fc"/>
+            <circle cx="64" cy="30" r="3" fill="#c084fc"/>
+            <circle cx="40" cy="12" r="3.5" fill="#facc15"/>
+            <circle cx="22" cy="55" r="2.5" fill="#38bdf8"/>
+            <circle cx="58" cy="55" r="2.5" fill="#38bdf8"/>
+            <!-- Robe Decorated with Sigma Series Symbols -->
+            <text x="40" y="62" fill="#c084fc" font-size="10" font-family="var(--font-math)" text-anchor="middle">Σ cₙxⁿ</text>
+          </svg>`;
+      } else {
+        // Generic Instabilidade Stealth Operative
+        return `
+          <svg viewBox="0 0 80 80">
+            <rect width="80" height="80" fill="#0a1018"/>
+            <path d="M26,18 C26,12 54,12 54,18 L58,45 L22,45 Z" fill="#1e293b"/>
+            <!-- Glowing Red Visor -->
+            <rect x="28" y="28" width="24" height="6" rx="2" fill="#ef4444"/>
+            <!-- Cyber Helmet Lines -->
+            <line x1="40" y1="14" x2="40" y2="24" stroke="#475569" stroke-width="2"/>
+            <path d="M22,50 L40,56 L58,50 L64,80 L16,80 Z" fill="#0f172a"/>
+            <circle cx="40" cy="62" r="3" fill="#14b8a6"/>
+          </svg>`;
+      }
+    }
+
+    // --- Mission Target Configurations ---
+    const MISSIONS_CONFIG = {
+      '9-3': {
+        id: '9-3', title: '9.3: Equações Separáveis', chapter: 'Stewart Cap. 9.3', weapon: 'Pistola Separável',
+        codeName: 'POSTO BERLIM-LEIBNIZ', lat: '52°31\'N 13°24\'E', avatarType: 'lia',
+        briefing: 'Agente Lia, aqui é o Dr. Bernoulli. Equações separáveis podem ser reescritas na forma g(y) dy = f(x) dx. Integre ambos os lados: ∫ g(y) dy = ∫ f(x) dx + C e determine C pela condição inicial. Cuidado com armadilhas não-separáveis da Cortina de Ferro!',
+        buildTargets: generateMission93
+      },
+      '9-4': {
+        id: '9-4', title: '9.4: Crescimento Populacional', chapter: 'Stewart Cap. 9.4', weapon: 'Lançador Logístico',
+        codeName: 'BIOLAB CHERNOBYL', lat: '51°23\'N 30°05\'E', avatarType: 'bernoulli',
+        briefing: 'Infiltração em silos biológicos da Guerra Fria. Crescimento natural segue dP/dt = kP (solução P = P₀ e^(kt), tempo de duplicação ln 2 / k). No modelo logístico dP/dt = kP(1 - P/M), a colônia se satura na capacidade de suporte M.',
+        buildTargets: generateMission94
+      },
+      '9-5': {
+        id: '9-5', title: '9.5: Equações Lineares (1ª Ordem)', chapter: 'Stewart Cap. 9.5', weapon: 'Rifle Fator Integrante',
+        codeName: 'SUBESTAÇÃO BÁLTICA', lat: '54°43\'N 20°30\'E', avatarType: 'lia',
+        briefing: 'Estação de águas e tratamento de vazão. EDOs lineares dy/dx + P(x)y = Q(x) são neutralizadas calculando I(x) = e^(∫ P(x) dx) e integrando d/dx [I(x)·y]. Desconfie de termos não-lineares com y² ou sen(y)!',
+        buildTargets: generateMission95
+      },
+      '9-6': {
+        id: '9-6', title: '9.6: Predador-Presa (Lotka-Volterra)', chapter: 'Stewart Cap. 9.6', weapon: 'Escâner de Fase Dupla',
+        codeName: 'RESERVA SIBERIANA // CHEFE DUPLO', lat: '62°02\'N 129°44\'E', avatarType: 'lotka-volterra',
+        briefing: 'Alerta vermelho! Os comandantes de campo soviéticos da Instabilidade são a dupla Lotka & Volterra. No sistema dR/dt = kR - aRW e dW/dt = -rW + bRW, o equilíbrio de coexistência é R* = r/b e W* = k/a. Neutralize as 4 fases!',
+        buildTargets: generateMission96
+      },
+      '17-1': {
+        id: '17-1', title: '17.1: EDOs de 2ª Ordem Homogêneas', chapter: 'Stewart Cap. 17.1', weapon: 'Escopeta Característica',
+        codeName: 'TORRE PRAGA // SINAL PENDULAR', lat: '50°05\'N 14°25\'E', avatarType: 'lia',
+        briefing: 'Torre de radares e pêndulos. Resolva a equação característica r² + pr + q = 0. Se Δ > 0: duas raízes reais distintas. Se Δ = 0: raiz real dupla com termo multiplicador x. Se Δ < 0: raízes complexas com oscilação amortecida.',
+        buildTargets: generateMission171
+      },
+      '17-2': {
+        id: '17-2', title: '17.2: Não Homogêneas (Coef. a Determinar)', chapter: 'Stewart Cap. 17.2', weapon: 'Cápsula de Parâmetros',
+        codeName: 'BUNKER URAL // VIBRAÇÃO FORÇADA', lat: '56°50\'N 60°35\'E', avatarType: 'assintota',
+        briefing: 'Bunker subterrâneo com forçamento externo G(x). A solução geral é y = y_h + y_p. Use o método dos coeficientes a determinar (polinômio, exponencial ou senos/cossenos). A longo prazo, a resposta transiente decai e resta o regime permanente y_p!',
+        buildTargets: generateMission172
+      },
+      '17-3': {
+        id: '17-3', title: '17.3: Molas e Circuitos (Hooke & Kirchhoff)', chapter: 'Stewart Cap. 17.3', weapon: 'Bobina de Ressonância',
+        codeName: 'COMPLEXO NUCLEAR // CHEFES DUPLOS', lat: '55°45\'N 37°37\'E', avatarType: 'hooke',
+        briefing: 'Dois chefes de choque: Hooke (mola: mx″ + cx′ + kx = 0) e Kirchhoff (circuito RLC: LQ″ + RQ′ + Q/C = 0). Classifique o amortecimento comparando c² com 4mk (ou R² com 4L/C): livre, subamortecido, crítico ou superamortecido!',
+        buildTargets: generateMission173
+      },
+      '17-4': {
+        id: '17-4', title: '17.4: Séries de Potências (Frobenius)', chapter: 'Stewart Cap. 17.4', weapon: 'Canhão de Séries',
+        codeName: 'SALA CENTRAL // CHEFE FINAL FROBENIUS', lat: '80°00\'N 00°00\'E', avatarType: 'frobenius',
+        briefing: 'O confronto final na base polar! Madame Assíntota liberou o mestre das séries, Frobenius. Substitua y = Σ cₙxⁿ, estabeleça a relação de recorrência dos coeficientes e faça a solução convergir para salvar o mundo!',
+        buildTargets: generateMission174
+      }
+    };
+
+    // --- Mission 9.3 Generator (Separable) ---
+    function generateMission93() {
+      const targets = [];
+      const complexity = getMathComplexity();
+      [1, 2, 3, 4].forEach(type => {
+        const aChoices = complexity >= 1.5 ? [2, 3, 4] : (complexity < 0.9 ? [1, 2] : [1, 2, 3]);
+        const a = randChoice(aChoices);
+        let edoStr = '', icStr = '', correctLabel = '', correctFn, testRhs;
+        let pviText = '', energyQ = '', energyOpts = [];
+        if (type === 1) {
+          const y0Choices = complexity >= 1.5 ? [2, 3, 4] : [1, 2, 3];
+          const y0 = randChoice(y0Choices);
+          edoStr = `dy/dx = ${a === 1 ? '' : a}x·y`; icStr = `y(0) = ${y0}`; pviText = `PVI: ${edoStr}, com ${icStr}`;
+          correctLabel = `y = ${y0 === 1 ? '' : y0}e^(${a === 1 ? 'x²/2' : `${a}x²/2`})`;
+          correctFn = x => y0 * Math.exp(a * x * x / 2); testRhs = (x, y) => a * x * y;
+          energyQ = `Se y representa a potência do transmissor, qual o valor de y(1)?`;
+          energyOpts = [
+            { text: `${y0 === 1 ? '' : y0}e^(${a}/2) ≈ ${(y0 * Math.exp(a / 2)).toFixed(2)}`, ok: true },
+            { text: `${y0 === 1 ? '' : y0}e^(${a}) ≈ ${(y0 * Math.exp(a)).toFixed(2)}`, ok: false },
+            { text: `${y0 + a}x ≈ ${(y0 + a).toFixed(2)}`, ok: false },
+            { text: `${y0}e^(-${a}/2) ≈ ${(y0 * Math.exp(-a/2)).toFixed(2)}`, ok: false }
+          ];
+        } else if (type === 2) {
+          const y0Choices = complexity >= 1.5 ? [2, 4, 6] : [1, 2, 4];
+          const y0 = randChoice(y0Choices);
+          edoStr = `dy/dx = ${a === 1 ? '' : a}y`; icStr = `y(0) = ${y0}`; pviText = `PVI: ${edoStr}, com ${icStr}`;
+          correctLabel = `y = ${y0 === 1 ? '' : y0}e^(${a === 1 ? 'x' : `${a}x`})`;
+          correctFn = x => y0 * Math.exp(a * x); testRhs = (x, y) => a * y;
+          energyQ = `Qual o valor do sinal captado em x = 1?`;
+          energyOpts = [
+            { text: `${y0 === 1 ? '' : y0}e^(${a}) ≈ ${(y0 * Math.exp(a)).toFixed(2)}`, ok: true },
+            { text: `${y0}e^(-${a}) ≈ ${(y0 * Math.exp(-a)).toFixed(2)}`, ok: false },
+            { text: `${y0 * a}x + ${y0} ≈ ${(y0 * a + y0).toFixed(2)}`, ok: false },
+            { text: `${y0}e^(${a * 2}) ≈ ${(y0 * Math.exp(a * 2)).toFixed(2)}`, ok: false }
+          ];
+        } else if (type === 3) {
+          const y0Choices = complexity >= 1.5 ? [3, 4, 5] : [2, 4];
+          const y0 = randChoice(y0Choices);
+          edoStr = `dy/dx = ${a === 1 ? '' : a}x / y`; icStr = `y(0) = ${y0}`; pviText = `PVI: ${edoStr}, com ${icStr}`;
+          const cVal = y0 * y0;
+          correctLabel = `y = √(${a === 1 ? 'x²' : `${a}x²`} + ${cVal})`;
+          correctFn = x => Math.sqrt(a * x * x + cVal); testRhs = (x, y) => a * x / y;
+          energyQ = `Em x = 1, a blindagem de contenção vale:`;
+          energyOpts = [
+            { text: `√(${a + cVal}) ≈ ${Math.sqrt(a + cVal).toFixed(2)}`, ok: true },
+            { text: `√(${cVal - a}) ≈ ${Math.sqrt(Math.max(0.1, cVal - a)).toFixed(2)}`, ok: false },
+            { text: `${y0 + a}`, ok: false },
+            { text: `√(${2*a + cVal}) ≈ ${Math.sqrt(2*a + cVal).toFixed(2)}`, ok: false }
+          ];
+        } else {
+          const y0Choices = complexity >= 1.5 ? [3, 4] : [2, 3];
+          const y0 = randChoice(y0Choices);
+          edoStr = `dy/dx = ${a === 1 ? '' : a}y / x`; icStr = `y(1) = ${y0}`; pviText = `PVI: ${edoStr}, com ${icStr} (x > 0)`;
+          correctLabel = `y = ${y0 === 1 ? '' : y0}x^${a}`;
+          correctFn = x => y0 * Math.pow(x, a); testRhs = (x, y) => a * y / x;
+          energyQ = `Em x = 2, a leitura do canal de telemetria vale:`;
+          energyOpts = [
+            { text: `${y0 * Math.pow(2, a)}`, ok: true },
+            { text: `${y0 * Math.pow(2, a + 1)}`, ok: false },
+            { text: `${y0 * a}`, ok: false },
+            { text: `${(y0 / Math.pow(2, a)).toFixed(2)}`, ok: false }
+          ];
+        }
+        const opts = [
+          { text: correctLabel, ok: true, fn: correctFn },
+          { text: correctLabel.replace('+', '-').replace('^', '^-'), ok: false, fn: x => correctFn(x) * 0.7 + 0.5 },
+          { text: correctLabel.replace(`${a}`, `${a + 1}`), ok: false, fn: x => correctFn(x) * 1.5 },
+          { text: correctLabel.replace(`${a}`, `${a + 2}`), ok: false, fn: x => correctFn(x) * 2.2 }
+        ];
+        const seenLabels = new Set();
+        opts.forEach((o, i) => {
+          if (seenLabels.has(o.text) || (i > 0 && o.text === opts[0].text)) o.text += ` · var(${i})`;
+          seenLabels.add(o.text);
+        });
+        targets.push({
+          isDecoy: false, name: `Espião Separável #${type}`, edo: edoStr, ic: icStr, threat: 'MÉDIO', avatar: 'operative',
+          layer1: {
+            question: 'Analise a estrutura diferencial do canal criptografado:',
+            options: [{ text: 'Equação Diferencial Separável', ok: true }, { text: 'Equação Não-Separável (Armadilha)', ok: false }],
+            hint: 'Isole os termos com y junto de dy e os com x junto de dx.',
+            explanation: `A EDO ${edoStr} pode ser escrita na forma g(y)dy = f(x)dx. É separável!`
+          },
+          layer2: {
+            question: `Execute o código analítico para resolver o ${pviText}:`, options: shuffle(opts),
+            hint: 'Separe variáveis, integre ambos os lados e use a condição inicial para achar C.',
+            explanation: `A solução exata do PVI é ${correctLabel}.`, testRhs: testRhs, x0: type === 4 ? 1.0 : 0.0
+          },
+          layer3: {
+            question: energyQ, options: shuffle(energyOpts),
+            hint: 'Substitua x na função-solução obtida na Camada 2.',
+            explanation: 'Substituindo o valor numérico de x na solução, chegamos à resposta correta.'
+          }
+        });
+      });
+      const decoys = [{ edo: 'dy/dx = x + y', ic: 'y(0) = 1' }, { edo: 'dy/dx = x² + y²', ic: 'y(0) = 0' }, { edo: 'dy/dx = sen(x + y)', ic: 'y(0) = π' }, { edo: 'dy/dx = x + y²', ic: 'y(0) = 2' }];
+      shuffle(decoys).slice(0, 2).forEach((d, idx) => {
+        targets.push({
+          isDecoy: true, name: `Sonda Decoy #${idx + 1} (Falso Alvo)`, edo: d.edo, ic: d.ic, threat: 'ARMADILHA', avatar: 'operative',
+          layer1: {
+            question: 'ALERTA TÁTICO: O método de separação de variáveis é aplicável?',
+            options: [{ text: 'Separável // Disparar Pistola Separável', ok: false }, { text: 'Não-Separável // Abortar e Recuar!', ok: true }],
+            hint: 'Observe a soma de x com y: é impossível fatorar como produto g(y)·f(x).',
+            explanation: `Perfeito! ${d.edo} é uma armadilha não-separável da Guerra Fria. Recuo tático com sucesso (+10 pts)!`
+          }
+        });
+      });
+      return shuffle(targets);
+    }
+
+    // --- Mission 9.4 Generator (Population Growth) ---
+    function generateMission94() {
+      const targets = [];
+      for (let i = 1; i <= 3; i++) {
+        const k = randChoice([0.1, 0.2, 0.5]), P0 = randChoice([100, 200, 500]);
+        const edo = `dP/dt = ${k}P`, ic = `P(0) = ${P0}`, tDouble = (Math.LN2 / k).toFixed(2);
+        targets.push({
+          isDecoy: false, name: `Bio-Incubadora Malthusiana #${i}`, edo: edo, ic: ic, threat: 'ALTO', avatar: 'operative',
+          layer1: {
+            question: 'Identifique o modelo de proliferação biológica no silo:',
+            options: [{ text: 'Crescimento Natural (Exponencial Malthusiano)', ok: true }, { text: 'Crescimento Logístico (com Saturação)', ok: false }],
+            hint: 'A taxa dP/dt é diretamente proporcional a P sem restrição de recursos (1 - P/M).',
+            explanation: `${edo} representa crescimento natural irrestrito (Stewart 9.4).`
+          },
+          layer2: {
+            question: `Determine a curva de propagação P(t) com P(0) = ${P0}:`,
+            options: shuffle([
+              { text: `P(t) = ${P0}e^(${k}t)`, ok: true, fn: t => P0 * Math.exp(k * t) },
+              { text: `P(t) = ${P0}e^(-${k}t)`, ok: false, fn: t => P0 * Math.exp(-k * t) },
+              { text: `P(t) = ${P0}e^(${+(k * 2).toFixed(1)}t)`, ok: false, fn: t => P0 * Math.exp(k * 2 * t) },
+              { text: `P(t) = ${P0} + ${k * 100}t`, ok: false, fn: t => P0 + k * 100 * t }
+            ]),
+            hint: 'A solução de dP/dt = kP com condição inicial P(0) = P₀ é P(t) = P₀ e^(kt).',
+            explanation: `A solução exata é P(t) = ${P0}e^(${k}t).`, testRhs: (t, p) => k * p, x0: 0.0
+          },
+          layer3: {
+            question: `Calcule o tempo de duplicação da biomassa (t tal que P(t) = 2P₀):`,
+            options: shuffle([
+              { text: `t = ln(2) / ${k} ≈ ${tDouble} h`, ok: true },
+              { text: `t = 1 / ${k} = ${(1/k).toFixed(1)} h`, ok: false },
+              { text: `t = 2 / ${k} = ${(2/k).toFixed(1)} h`, ok: false },
+              { text: `t = ${k} · ln(2) ≈ ${(k * Math.LN2).toFixed(2)} h`, ok: false }
+            ]),
+            hint: 'Resolva 2P₀ = P₀ e^(kt) aplicando ln em ambos os lados.',
+            explanation: `2 = e^(kt) ⟹ t = ln(2) / k ≈ ${tDouble} horas.`
+          }
+        });
+      }
+      for (let i = 1; i <= 3; i++) {
+        const k = randChoice([0.1, 0.2]), M = randChoice([1000, 2000]), P0 = randChoice([100, 200]), A = (M - P0) / P0;
+        const edo = `dP/dt = ${k}P(1 - P/${M})`, ic = `P(0) = ${P0}`;
+        targets.push({
+          isDecoy: false, name: `Reator Logístico Subterrâneo #${i}`, edo: edo, ic: ic, threat: 'CRÍTICO', avatar: 'operative',
+          layer1: {
+            question: 'Classifique a dinâmica regulada pelo reator:',
+            options: [{ text: 'Crescimento Logístico (com Capacidade M)', ok: true }, { text: 'Crescimento Natural Ilimitado', ok: false }],
+            hint: 'Observe o termo limitante (1 - P/M), que desacelera o crescimento.',
+            explanation: 'Trata-se da Equação Logística de Verhulst com capacidade de suporte M.'
+          },
+          layer2: {
+            question: `Calcule a função logística P(t) com A = (M - P₀)/P₀:`,
+            options: shuffle([
+              { text: `P(t) = ${M} / (1 + ${A}e^(-${k}t))`, ok: true, fn: t => M / (1 + A * Math.exp(-k * t)) },
+              { text: `P(t) = ${M} / (1 + ${A}e^(${k}t))`, ok: false, fn: t => M / (1 + A * Math.exp(k * t)) },
+              { text: `P(t) = ${P0}e^(${k}t)`, ok: false, fn: t => P0 * Math.exp(k * t) },
+              { text: `P(t) = ${M} - ${A}e^(-${k}t)`, ok: false, fn: t => M - A * Math.exp(-k * t) }
+            ]),
+            hint: 'A solução logística é P(t) = M / (1 + A e^(-kt)) com expoente negativo.',
+            explanation: `Para M = ${M} e P₀ = ${P0}, A = ${A}, logo P(t) = ${M} / (1 + ${A}e^(-${k}t)).`,
+            testRhs: (t, p) => k * p * (1 - p / M), x0: 0.0
+          },
+          layer3: {
+            question: `Qual o comportamento assintótico da cultura viral quando t → ∞?`,
+            options: shuffle([
+              { text: `P(t) converge para M = ${M} (Capacidade de Suporte)`, ok: true },
+              { text: `P(t) explode para o infinito`, ok: false },
+              { text: `P(t) dissipa-se para zero`, ok: false },
+              { text: `P(t) oscila periodicamente`, ok: false }
+            ]),
+            hint: 'Quando t → ∞, e^(-kt) vai a zero no denominador.',
+            explanation: `lim_{t→∞} P(t) = M / (1 + 0) = M = ${M}.`
+          }
+        });
+      }
+      return shuffle(targets);
+    }
+
+    // --- Mission 9.5 Generator (Linear 1st Order) ---
+    function generateMission95() {
+      const targets = [];
+      [1, 2, 3, 1].forEach((fam, idx) => {
+        const a = randChoice([1, 2]), m = randChoice([2, 3, 5]), y0 = randChoice([1, 4, 6]);
+        let edo = '', ic = '', correctLabel = '', correctFn, testRhs, x0 = 0.0;
+        let dist1 = '', dist2 = '', dist3 = '', layer3Q = '', layer3Opts = [];
+        if (fam === 1) {
+          edo = `dy/dx + ${a === 1 ? '' : a}y = ${a * m}`; ic = `y(0) = ${y0}`;
+          const diff = y0 - m; const diffStr = diff >= 0 ? `+ ${diff}` : `- ${Math.abs(diff)}`;
+          correctLabel = `y = ${m} ${diffStr}e^(-${a === 1 ? '' : a}x)`;
+          correctFn = x => m + diff * Math.exp(-a * x); testRhs = (x, y) => a * m - a * y;
+          dist1 = `y = ${m} ${diffStr}e^(${a === 1 ? '' : a}x)`; dist2 = `y = ${m + 1} ${diffStr}e^(-${a === 1 ? '' : a}x)`; dist3 = `y = ${m}x ${diffStr}`;
+          layer3Q = 'Qual o regime de equilíbrio estável de fluxo quando x → ∞?';
+          layer3Opts = [
+            { text: `y(x) estabiliza no nível m = ${m}`, ok: true },
+            { text: `y(x) diverge para +∞`, ok: false },
+            { text: `y(x) cai a zero`, ok: false },
+            { text: `y(x) oscila sem parar`, ok: false }
+          ];
+        } else if (fam === 2) {
+          edo = `dy/dx + ${a === 1 ? '' : a}y/x = ${(a + 1) * m}`; ic = `y(1) = ${y0}`;
+          const diff = y0 - m; const diffStr = diff >= 0 ? `+ ${diff}` : `- ${Math.abs(diff)}`;
+          correctLabel = `y = ${m}x ${diffStr}x^(-${a})`;
+          correctFn = x => m * x + diff * Math.pow(x, -a); testRhs = (x, y) => (a + 1) * m - (a * y / x); x0 = 1.0;
+          dist1 = `y = ${m}x ${diffStr}x^(${a})`; dist2 = `y = ${m}x + ${diff}`; dist3 = `y = ${(a + 1) * m}x ${diffStr}x^(-${a})`;
+          layer3Q = 'Para tubos longos (x → ∞), a assíntota de fluxo é:';
+          layer3Opts = [
+            { text: `Acompanha a reta assintótica y = ${m}x`, ok: true },
+            { text: `Permanece constante em y = ${m}`, ok: false },
+            { text: `Cresce exponencialmente`, ok: false },
+            { text: `Tende a zero`, ok: false }
+          ];
+        } else {
+          edo = `dy/dx + ${a === 1 ? '' : a}x·y = ${a * m}x`; ic = `y(0) = ${y0}`;
+          const diff = y0 - m; const diffStr = diff >= 0 ? `+ ${diff}` : `- ${Math.abs(diff)}`;
+          correctLabel = `y = ${m} ${diffStr}e^(-${a === 1 ? 'x²/2' : `${a}x²/2`})`;
+          correctFn = x => m + diff * Math.exp(-a * x * x / 2); testRhs = (x, y) => a * m * x - a * x * y;
+          dist1 = `y = ${m} ${diffStr}e^(${a === 1 ? 'x²/2' : `${a}x²/2`})`; dist2 = `y = ${m + 2} ${diffStr}e^(-${a === 1 ? 'x²/2' : `${a}x²/2`})`; dist3 = `y = ${m}x ${diffStr}`;
+          layer3Q = 'Qual o limite da concentração química no infinito?';
+          layer3Opts = [
+            { text: `lim_{x→∞} y(x) = ${m}`, ok: true },
+            { text: `lim_{x→∞} y(x) = 0`, ok: false },
+            { text: `lim_{x→∞} y(x) = ∞`, ok: false },
+            { text: `lim_{x→∞} y(x) = ${y0}`, ok: false }
+          ];
+        }
+        targets.push({
+          isDecoy: false, name: `Filtro Linear de Tubulação #${idx + 1}`, edo: edo, ic: ic, threat: 'MÉDIO', avatar: 'operative',
+          layer1: {
+            question: 'Identifique o protocolo de neutralização para esta EDO:',
+            options: [{ text: 'Equação Linear de 1ª Ordem (Fator Integrante)', ok: true }, { text: 'Equação Não-Linear (Incompatível)', ok: false }],
+            hint: 'A equação tem formato dy/dx + P(x)y = Q(x), linear em relação a y.',
+            explanation: `${edo} é uma equação linear de 1ª ordem clássica.`
+          },
+          layer2: {
+            question: `Determine a solução aplicando o Fator Integrante I(x):`,
+            options: shuffle([
+              { text: correctLabel, ok: true, fn: correctFn },
+              { text: dist1, ok: false, fn: x => correctFn(x) * 1.3 + 1 },
+              { text: dist2, ok: false, fn: x => correctFn(x) + 2 },
+              { text: dist3, ok: false, fn: x => correctFn(x) * 0.5 }
+            ]),
+            hint: 'Calcule I(x) = e^(∫ P dx), multiplique e integre d/dx [I·y].',
+            explanation: `A solução analítica correta é ${correctLabel}.`, testRhs: testRhs, x0: x0
+          },
+          layer3: {
+            question: layer3Q, options: shuffle(layer3Opts),
+            hint: 'Avalie o limite da expressão analítica para x → ∞.',
+            explanation: 'O termo exponencial decrescente anula-se, sobrando o regime permanente.'
+          }
+        });
+      });
+      const decoys = [{ edo: 'dy/dx + y² = x', ic: 'y(0) = 1' }, { edo: 'dy/dx = x + y²', ic: 'y(0) = 0' }, { edo: 'dy/dx + sen(y) = x', ic: 'y(0) = π/2' }, { edo: 'dy/dx + x·y² = 1', ic: 'y(0) = 2' }];
+      shuffle(decoys).slice(0, 2).forEach((d, idx) => {
+        targets.push({
+          isDecoy: true, name: `Sonda Não-Linear Decoy #${idx + 1}`, edo: d.edo, ic: d.ic, threat: 'ARMADILHA', avatar: 'operative',
+          layer1: {
+            question: 'ALERTA DE SEGURANÇA: O Rifle Fator Integrante pode disparar?',
+            options: [{ text: 'Linear // Disparar Rifle Fator Integrante', ok: false }, { text: 'Não-Linear (Contém termo de ordem superior em y) // Abortar!', ok: true }],
+            hint: 'Observe y² ou sen(y). O rifle exige estritamente a 1ª potência de y.',
+            explanation: `Excelente observação, Agente! ${d.edo} é não-linear. Recuo com sucesso (+10 pts)!`
+          }
+        });
+      });
+      return shuffle(targets);
+    }
+
+    // --- Mission 9.6 Generator (Lotka-Volterra Boss) ---
+    function generateMission96() {
+      const configs = [
+        { a: 2, b: 3, Rstar: 5, Wstar: 2 },
+        { a: 2, b: 2, Rstar: 6, Wstar: 3 },
+        { a: 3, b: 2, Rstar: 8, Wstar: 2 },
+        { a: 3, b: 3, Rstar: 10, Wstar: 4 }
+      ];
+      return configs.map((cfg, idx) => {
+        const k = cfg.a * cfg.Wstar, r = cfg.b * cfg.Rstar, phaseNum = idx + 1;
+        const edoStr = `dR/dt = ${k}R - ${cfg.a}RW  |  dW/dt = -${r}W + ${cfg.b}RW`;
+        const icStr = `Equilíbrio Alvo: R* = ${cfg.Rstar}, W* = ${cfg.Wstar}`;
+        let l1Q = '', l1Opts = [], l1Exp = '';
+        if (phaseNum === 1) {
+          l1Q = 'Qual o significado tático do termo -a·R·W na taxa das presas (dR/dt)?';
+          l1Opts = [
+            { text: 'Taxa de predação proporcional aos encontros entre presas e predadores', ok: true },
+            { text: 'Mortalidade natural das presas por velhice', ok: false },
+            { text: 'Capacidade de suporte do habitat', ok: false },
+            { text: 'Taxa de natalidade dos predadores', ok: false }
+          ];
+          l1Exp = 'O termo bilinear -a·R·W modela os encontros e capturas dos predadores sobre as presas.';
+        } else if (phaseNum === 2) {
+          l1Q = 'Sem predadores no teatro (W = 0), qual a dinâmica da população de presas R(t)?';
+          l1Opts = [
+            { text: 'Cresce exponencialmente sem limites: dR/dt = kR', ok: true },
+            { text: 'Extingue-se gradualmente até zero', ok: false },
+            { text: 'Permanece exatamente fixa no valor inicial', ok: false },
+            { text: 'Entra em colapso logístico', ok: false }
+          ];
+          l1Exp = 'Se W = 0, a EDO reduz-se a dR/dt = kR, gerando proliferação exponencial irrestrita.';
+        } else if (phaseNum === 3) {
+          l1Q = 'Sem presas no terreno (R = 0), o que ocorre com os predadores W(t)?';
+          l1Opts = [
+            { text: 'Decaem exponencialmente até a extinção: dW/dt = -rW', ok: true },
+            { text: 'Migram mantendo a contagem constante', ok: false },
+            { text: 'Crescem indefinidamente por canibalismo', ok: false },
+            { text: 'Formam um equilíbrio estático não-nulo', ok: false }
+          ];
+          l1Exp = 'Sem alimento (R = 0), os predadores decaem exponencialmente pela taxa de mortalidade -rW.';
+        } else {
+          l1Q = 'O que representa o termo +b·R·W na taxa dos predadores (dW/dt)?';
+          l1Opts = [
+            { text: 'Conversão da biomassa de caça em taxa de natalidade de predadores', ok: true },
+            { text: 'Trégua diplomática entre as espécies', ok: false },
+            { text: 'Reforços externos de tropas', ok: false },
+            { text: 'Competição interna entre predadores', ok: false }
+          ];
+          l1Exp = 'O termo positivo +b·R·W reflete a energia alimentar convertida em novas crias de predadores.';
+        }
+        const optsL2 = [
+          { text: `Ponto de Coexistência: (R*, W*) = (${cfg.Rstar}, ${cfg.Wstar})`, ok: true, R: cfg.Rstar, W: cfg.Wstar },
+          { text: `Ponto Invertido: (R*, W*) = (${cfg.Wstar}, ${cfg.Rstar})`, ok: false, R: cfg.Wstar, W: cfg.Rstar },
+          { text: `Parâmetros Isolados: (R*, W*) = (${r}, ${k})`, ok: false, R: r, W: k },
+          { text: `Ponto de Extinção: (R*, W*) = (0, 0)`, ok: false, R: 0, W: 0 }
+        ];
+        const testR = cfg.Rstar + 2, testW = cfg.Wstar + 1;
+        const dR = k * testR - cfg.a * testR * testW, dW = -r * testW + cfg.b * testR * testW;
+        const rSign = dR > 0 ? 'cresce' : (dR < 0 ? 'decresce' : 'estável');
+        const wSign = dW > 0 ? 'cresce' : (dW < 0 ? 'decresce' : 'estável');
+        return {
+          isDecoy: false, name: `Chefe Lotka & Volterra (Fase ${phaseNum}/4)`, edo: edoStr, ic: icStr, threat: 'CHEFE DUPLO', avatar: 'lotka-volterra',
+          layer1: { question: l1Q, options: shuffle(l1Opts), hint: 'Lembre-se da modelagem de presas e predadores em Stewart 9.6.', explanation: l1Exp },
+          layer2: {
+            question: 'Calcule o ponto crítico de equilíbrio biológico não-trivial (R > 0, W > 0):',
+            options: shuffle(optsL2), hint: 'Iguale dR/dt = 0 e dW/dt = 0 simultaneamente.',
+            explanation: `dR/dt = R(${k} - ${cfg.a}W) = 0 ⟹ W* = ${cfg.Wstar}; dW/dt = W(-${r} + ${cfg.b}R) = 0 ⟹ R* = ${cfg.Rstar}.`,
+            customCheck: (opt) => {
+              const dR_val = k * opt.R - cfg.a * opt.R * opt.W, dW_val = -r * opt.W + cfg.b * opt.R * opt.W;
+              if (opt.R === 0 && opt.W === 0) return 'O ponto (0,0) representa a extinção mútua, não a coexistência.';
+              if (Math.abs(dR_val) < 1e-4 && Math.abs(dW_val) < 1e-4) return `Verificação aprovada! dR/dt = ${dR_val.toFixed(2)}, dW/dt = ${dW_val.toFixed(2)}. Ambas as taxas anulam-se!`;
+              return `Falha no teste: dR/dt = ${dR_val.toFixed(1)}, dW/dt = ${dW_val.toFixed(1)} (deveriam ser ambos 0).`;
+            }
+          },
+          layer3: {
+            question: `No estado tático (R = ${testR}, W = ${testW}), qual a tendência imediata do sistema?`,
+            options: shuffle([
+              { text: `Presas ${rSign} (dR/dt = ${dR}) e Predadores ${wSign} (dW/dt = ${dW})`, ok: true },
+              { text: `Ambas as populações disparam em alta velocidade`, ok: false },
+              { text: `Ambas as populações decaem imediatamente a zero`, ok: false },
+              { text: `O sistema alcançou o repouso absoluto`, ok: false }
+            ]),
+            hint: 'Substitua R e W diretamente em dR/dt e dW/dt para checar os sinais das derivadas.',
+            explanation: `Substituindo R = ${testR} e W = ${testW}: dR/dt = ${dR} (${rSign}) e dW/dt = ${dW} (${wSign}).`
+          }
+        };
+      });
+    }
+
+    // --- Mission 17.1 Generator (2nd Order Homogeneous) ---
+    function generateMission171() {
+      const targets = [];
+      const complexity = getMathComplexity();
+      const cases = ['distinct', 'distinct', 'double', 'double', 'complex', 'complex'];
+      cases.forEach((cs, idx) => {
+        let p, q, delta, edoStr, icStr, correctLabel, correctFn, testRhs;
+        let dist1, dist2, dist3, l1Q, l1Opts, l1Exp, l3Q, l3Opts;
+        const y0Choices = complexity >= 1.5 ? [2, 3, 4] : [1, 2];
+        const yp0Choices = complexity >= 1.5 ? [1, 2] : [0, 1];
+        const y0 = randChoice(y0Choices), yp0 = randChoice(yp0Choices);
+        if (cs === 'distinct') {
+          const r1 = -1;
+          const r2Choices = complexity >= 1.5 ? [3, 4, 5] : (complexity < 0.9 ? [2] : [2, 3]);
+          const r2 = -randChoice(r2Choices);
+          p = -(r1 + r2); q = r1 * r2; delta = p * p - 4 * q;
+          edoStr = `y″ + ${p}y′ + ${q}y = 0`; icStr = `y(0) = ${y0}, y′(0) = ${yp0}`;
+          const c2 = (yp0 - r1 * y0) / (r2 - r1), c1 = y0 - c2;
+          correctLabel = `y = ${c1.toFixed(1)}e^(${r1}x) + ${c2.toFixed(1)}e^(${r2}x)`;
+          correctFn = x => c1 * Math.exp(r1 * x) + c2 * Math.exp(r2 * x);
+          dist1 = `y = ${c1.toFixed(1)}e^(${-r1}x) + ${c2.toFixed(1)}e^(${-r2}x)`;
+          dist2 = `y = ${(c1 + 1.2).toFixed(1)}e^(${r1}x) + ${c2.toFixed(1)}e^(${r2}x)`;
+          dist3 = `y = (${c1.toFixed(1)} + ${(c2 + 0.8).toFixed(1)}x)e^(${r1}x)`;
+          l1Q = 'Avalie o discriminante da equação característica r² + pr + q = 0:';
+          l1Opts = [
+            { text: `Δ = ${p}² - 4·1·${q} = ${delta} > 0 (Duas raízes reais distintas)`, ok: true },
+            { text: `Δ = 0 (Raiz real dupla)`, ok: false },
+            { text: `Δ < 0 (Raízes complexas conjugadas)`, ok: false }
+          ];
+          l1Exp = `Como Δ = ${delta} > 0, temos raízes reais distintas r₁ = ${r1} e r₂ = ${r2}.`;
+          l3Q = 'Qual o comportamento da solução a longo prazo quando x → ∞?';
+          l3Opts = [
+            { text: 'Decai assintoticamente a zero (y → 0) sem oscilar', ok: true },
+            { text: 'Cresce exponencialmente sem limites (y → ∞)', ok: false },
+            { text: 'Oscila com amplitude constante', ok: false },
+            { text: 'Permanece fixo no valor y = 1', ok: false }
+          ];
+        } else if (cs === 'double') {
+          const rChoices = complexity >= 1.5 ? [2, 3] : (complexity < 0.9 ? [1] : [1, 2]);
+          const r = -randChoice(rChoices);
+          p = -2 * r; q = r * r; delta = 0;
+          edoStr = `y″ + ${p}y′ + ${q}y = 0`; icStr = `y(0) = ${y0}, y′(0) = ${yp0}`;
+          const c1 = y0, c2 = yp0 - r * c1;
+          correctLabel = `y = (${c1} + ${c2}x)e^(${r}x)`;
+          correctFn = x => (c1 + c2 * x) * Math.exp(r * x);
+          dist1 = `y = (${c1} + ${c2}x)e^(${-r}x)`;
+          dist2 = `y = ${c1}e^(${r}x) + ${c2}e^(${r}x)`;
+          dist3 = `y = (${c1 + 1} + ${(c2 + 2)}x)e^(${r}x)`;
+          l1Q = 'Classifique a natureza das raízes da equação característica:';
+          l1Opts = [
+            { text: `Δ = ${p}² - 4·${q} = 0 (Raiz real dupla r = ${r})`, ok: true },
+            { text: `Δ > 0 (Raízes distintas)`, ok: false },
+            { text: `Δ < 0 (Oscilação complexa)`, ok: false }
+          ];
+          l1Exp = `Δ = 0. Na presença de raiz dupla, surge o fator multiplicador x (Stewart 17.1).`;
+          l3Q = 'Qual o comportamento limite de y(x) quando x → ∞?';
+          l3Opts = [
+            { text: `Tende a zero: lim_{x→∞} (c₁ + c₂x)e^(${r}x) = 0`, ok: true },
+            { text: 'Diverge para o infinito devido ao termo x', ok: false },
+            { text: 'Oscila indefinidamente entre -1 e 1', ok: false },
+            { text: 'Converge para c₁', ok: false }
+          ];
+        } else {
+          const alpha = -1;
+          const betaChoices = complexity >= 1.5 ? [3, 4, 5] : (complexity < 0.9 ? [1] : [1, 2]);
+          const beta = randChoice(betaChoices);
+          p = -2 * alpha; q = alpha * alpha + beta * beta; delta = p * p - 4 * q;
+          edoStr = `y″ + ${p}y′ + ${q}y = 0`; icStr = `y(0) = ${y0}, y′(0) = 0`;
+          const c1 = y0, c2 = -alpha * y0 / beta;
+          correctLabel = `y = e^(${alpha}x)(${c1} cos(${beta}x) ${c2 >= 0 ? `+ ${c2.toFixed(1)}` : `- ${Math.abs(c2).toFixed(1)}`} sen(${beta}x))`;
+          correctFn = x => Math.exp(alpha * x) * (c1 * Math.cos(beta * x) + c2 * Math.sin(beta * x));
+          dist1 = `y = e^(${-alpha}x)(${c1} cos(${beta}x) + ${c2.toFixed(1)} sen(${beta}x))`;
+          dist2 = `y = ${c1 + 1} cos(${beta}x) + ${c2.toFixed(1)} sen(${beta}x)`;
+          dist3 = `y = e^(${alpha}x)(${c1} sen(${beta}x) + ${(c2 + 1.5).toFixed(1)} cos(${beta}x))`;
+          l1Q = 'Avalie o discriminante da equação característica:';
+          l1Opts = [
+            { text: `Δ = ${p}² - 4·${q} = ${delta} < 0 (Raízes complexas conjugadas)`, ok: true },
+            { text: `Δ > 0 (Duas raízes reais)`, ok: false },
+            { text: `Δ = 0 (Raiz real dupla)`, ok: false }
+          ];
+          l1Exp = `Como Δ = ${delta} < 0, temos raízes complexas r = ${alpha} ± ${beta}i, gerando oscilação amortecida.`;
+          l3Q = 'Qual a dinâmica física do movimento com parte real α = -1?';
+          l3Opts = [
+            { text: 'Oscilação amortecida: oscila com amplitude decaindo a zero', ok: true },
+            { text: 'Oscilação pura com amplitude estritamente constante', ok: false },
+            { text: 'Ressonância descontrolada', ok: false },
+            { text: 'Movimento aperiódico sem cruzamentos do zero', ok: false }
+          ];
+        }
+        testRhs = (x, y, yp) => -p * yp - q * y;
+        targets.push({
+          isDecoy: false, name: `Ressonador Homogêneo #${idx + 1}`, edo: edoStr, ic: icStr, threat: 'MÉDIO-ALTO', avatar: 'operative',
+          layer1: { question: l1Q, options: shuffle(l1Opts), hint: 'Calcule r² + pr + q = 0 e determine o sinal de Δ.', explanation: l1Exp },
+          layer2: {
+            question: `Execute o código da solução geral y(x) com PVI:`,
+            options: shuffle([
+              { text: correctLabel, ok: true, fn: correctFn },
+              { text: dist1, ok: false, fn: x => correctFn(x) * 1.4 + 0.5 },
+              { text: dist2, ok: false, fn: x => correctFn(x) + Math.sin(x) },
+              { text: dist3, ok: false, fn: x => correctFn(x) * 0.6 }
+            ]),
+            hint: 'Use a forma padrão de Stewart 17.1 correspondente ao tipo de raiz e aplique y(0) e y′(0).',
+            explanation: `A solução exata que satisfaz a EDO e o PVI é ${correctLabel}.`,
+            isSecondOrder: true, p: p, q: q, y0: y0, yp0: yp0
+          },
+          layer3: { question: l3Q, options: shuffle(l3Opts), hint: 'Analise o sinal da parte real das raízes no infinito.', explanation: 'As raízes determinam o decaimento ou crescimento da solução geral conforme x → ∞.' }
+        });
+      });
+      return shuffle(targets);
+    }
+
+    // --- Mission 17.2 Generator (Undetermined Coefficients) ---
+    function generateMission172() {
+      const targets = [];
+      const types = ['poly', 'poly', 'exp', 'exp', 'trig', 'trig'];
+      types.forEach((t, idx) => {
+        const p = randChoice([2, 3]), q = randChoice([1, 2]);
+        let G_str = '', yp_correct = '', yp_fn, dist1, dist2, dist3;
+        let l1Q, l1Opts, l1Exp;
+        if (t === 'poly') {
+          const c = q * 2, d = p * 2 + q, A = c / q, B = (d - p * A) / q;
+          G_str = `${c}x + ${d}`; yp_correct = `y_p = ${A}x + ${B}`; yp_fn = x => A * x + B;
+          dist1 = `y_p = ${A}x - ${B}`; dist2 = `y_p = ${c}x + ${d}`; dist3 = `y_p = ${A}x² + ${B}x`;
+          l1Q = `Qual o formato correto da solução particular y_p para G(x) = ${G_str}?`;
+          l1Opts = [
+            { text: 'Forma polinomial de grau 1: y_p = Ax + B', ok: true },
+            { text: 'Forma polinomial simples: y_p = Ax', ok: false },
+            { text: 'Forma exponencial: y_p = Ae^(x)', ok: false },
+            { text: 'Forma de grau 2 com fator ressonante: y_p = Ax² + Bx', ok: false }
+          ];
+          l1Exp = `Como G(x) = ${G_str} é um polinômio de grau 1 e zero não é raiz da homogênea, propõe-se y_p = Ax + B.`;
+        } else if (t === 'exp') {
+          const m = 1, denom = m * m + p * m + q, k = denom * 2, A = 2;
+          G_str = `${k}e^(${m}x)`; yp_correct = `y_p = ${A}e^(${m}x)`; yp_fn = x => A * Math.exp(m * x);
+          dist1 = `y_p = ${k}e^(${m}x)`; dist2 = `y_p = ${A}e^(-${m}x)`; dist3 = `y_p = ${A}x·e^(${m}x)`;
+          l1Q = `Qual o formato candidato para y_p quando o forçamento é G(x) = ${G_str}?`;
+          l1Opts = [
+            { text: `Forma exponencial: y_p = A·e^(${m}x)`, ok: true },
+            { text: `Forma trigonométrica: y_p = A·cos(${m}x) + B·sen(${m}x)`, ok: false },
+            { text: `Forma multiplicada por x: y_p = A·x·e^(${m}x)`, ok: false },
+            { text: `Forma polinomial: y_p = Ax + B`, ok: false }
+          ];
+          l1Exp = `Como m = ${m} não é raiz da equação característica (r² + ${p}r + ${q} = 0), propõe-se y_p = A e^(${m}x).`;
+        } else {
+          G_str = `10 cos(x)`; yp_correct = `y_p = 2 cos(x) + 4 sen(x)`; yp_fn = x => 2 * Math.cos(x) + 4 * Math.sin(x);
+          dist1 = `y_p = 4 cos(x) + 2 sen(x)`; dist2 = `y_p = 2 cos(x) - 4 sen(x)`; dist3 = `y_p = 10 cos(x)`;
+          l1Q = 'Qual a proposta de solução particular para o forçamento G(x) = 10 cos(x)?';
+          l1Opts = [
+            { text: 'Combinação linear completa: y_p = A cos(x) + B sen(x)', ok: true },
+            { text: 'Apenas termo cossenoidal: y_p = A cos(x)', ok: false },
+            { text: 'Apenas termo senoidal: y_p = B sen(x)', ok: false },
+            { text: 'Forma exponencial complexa: y_p = A e^(ix)', ok: false }
+          ];
+          l1Exp = 'A presença de y′ mistura seno e cosseno na substituição, exigindo ambos: A cos(x) + B sen(x).';
+        }
+        const edoStr = `y″ + ${p}y′ + ${q}y = ${G_str}`;
+        targets.push({
+          isDecoy: false, name: `Oscilador Forçado #${idx + 1}`, edo: edoStr, ic: 'Regime Permanente (x → ∞)', threat: 'MÉDIO-ALTO', avatar: 'operative',
+          layer1: { question: l1Q, options: shuffle(l1Opts), hint: 'Consulte a tabela de Stewart 17.2 para o método dos coeficientes a determinar.', explanation: l1Exp },
+          layer2: {
+            question: `Substitua y_p na EDO e determine os coeficientes numéricos exatos:`,
+            options: shuffle([
+              { text: yp_correct, ok: true, fn: yp_fn },
+              { text: dist1, ok: false, fn: x => yp_fn(x) * 1.5 + 0.4 },
+              { text: dist2, ok: false, fn: x => yp_fn(x) - 1.2 },
+              { text: dist3, ok: false, fn: x => yp_fn(x) * 0.5 }
+            ]),
+            hint: 'Calcule y′_p e y″_p, substitua no lado esquerdo da EDO e iguale os coeficientes a G(x).',
+            explanation: `A solução particular correta é ${yp_correct}.`,
+            customCheck: (opt) => {
+              const xTest = 0.5, yVal = opt.fn(xTest), ypVal = deriv1(opt.fn, xTest), yppVal = deriv2(opt.fn, xTest);
+              const lhs = yppVal + p * ypVal + q * yVal;
+              let targetRhs;
+              if (t === 'poly') targetRhs = (q * 2) * xTest + (p * 2 + q);
+              else if (t === 'exp') targetRhs = (1 * 1 + p * 1 + q) * 2 * Math.exp(1 * xTest);
+              else targetRhs = 10 * Math.cos(xTest);
+              const diff = Math.abs(lhs - targetRhs);
+              if (diff < 0.1) return `Verificação aprovada! Em x = ${xTest}: Lado Esquerdo = ${lhs.toFixed(2)}, Exigido por G(x) = ${targetRhs.toFixed(2)}.`;
+              return `Falha na verificação! Em x = ${xTest}: Lado Esquerdo = ${lhs.toFixed(2)}, mas G(x) exige ${targetRhs.toFixed(2)}.`;
+            }
+          },
+          layer3: {
+            question: 'Em sistemas com amortecimento (p, q > 0), o que ocorre com y(x) quando x → ∞?',
+            options: shuffle([
+              { text: 'A solução homogênea y_h decai a zero e o sistema segue o regime permanente y_p', ok: true },
+              { text: 'A solução particular y_p decai a zero e sobra apenas y_h', ok: false },
+              { text: 'O sistema sofre destruição por ressonância descontrolada', ok: false },
+              { text: 'O sistema perde toda a energia e entra em repouso absoluto y = 0', ok: false }
+            ]),
+            hint: 'Como as raízes da homogênea têm parte real negativa, y_h(x) tende a zero.',
+            explanation: 'Stewart 17.2: y_h é o estado transitório e y_p é a resposta em regime permanente forçado.'
+          }
+        });
+      });
+      return shuffle(targets);
+    }
+
+    // --- Mission 17.3 Generator (Hooke & Kirchhoff Boss) ---
+    function generateMission173() {
+      const allDampingTypes = [
+        'Não Amortecido (Livre)',
+        'Subamortecido (Oscilatório Amortecido)',
+        'Criticamente Amortecido',
+        'Superamortecido (Aperiódico)'
+      ];
+      const phases = [
+        {
+          bossName: 'Chefe Hooke (Mola Industrial - Fase 1)', type: 'mola', m: 1, c: 0, k: 9,
+          dampingCategory: 'Não Amortecido (Livre)', edoStr: 'x″ + 9x = 0', icStr: 'x(0) = 2, x′(0) = 0',
+          l1Exp: 'Com c = 0, temos oscilação livre não-amortecida de frequência natural ω₀ = √(k/m) = 3 rad/s.',
+          solStr: 'x(t) = 2 cos(3t)', solFn: t => 2 * Math.cos(3 * t),
+          l2Opts: [
+            { text: 'x(t) = 2 cos(3t)', ok: true, fn: t => 2 * Math.cos(3 * t) },
+            { text: 'x(t) = 2 sen(3t)', ok: false, fn: t => 2 * Math.sin(3 * t) },
+            { text: 'x(t) = 2 cos(9t)', ok: false, fn: t => 2 * Math.cos(9 * t) },
+            { text: 'x(t) = 2 e^(-3t)', ok: false, fn: t => 2 * Math.exp(-3 * t) }
+          ],
+          l3Q: 'Qual a frequência angular natural ω₀ da vibração livre da mola?',
+          l3Opts: [
+            { text: 'ω₀ = √(k/m) = √(9/1) = 3 rad/s', ok: true },
+            { text: 'ω₀ = k/m = 9 rad/s', ok: false },
+            { text: 'ω₀ = 2π / 3 rad/s', ok: false },
+            { text: 'ω₀ = 0 rad/s', ok: false }
+          ]
+        },
+        {
+          bossName: 'Chefe Hooke (Exoesqueleto - Fase 2)', type: 'mola', m: 1, c: 6, k: 9,
+          dampingCategory: 'Criticamente Amortecido', edoStr: 'x″ + 6x′ + 9x = 0', icStr: 'x(0) = 1, x′(0) = -1',
+          l1Exp: 'c² = 36 e 4mk = 4·1·9 = 36. Como c² = 4mk, o sistema é criticamente amortecido.',
+          solStr: 'x(t) = (1 + 2t)e^(-3t)', solFn: t => (1 + 2 * t) * Math.exp(-3 * t),
+          l2Opts: [
+            { text: 'x(t) = (1 + 2t)e^(-3t)', ok: true, fn: t => (1 + 2 * t) * Math.exp(-3 * t) },
+            { text: 'x(t) = (1 + 2t)e^(3t)', ok: false, fn: t => (1 + 2 * t) * Math.exp(3 * t) },
+            { text: 'x(t) = e^(-3t) + 2t', ok: false, fn: t => Math.exp(-3 * t) + 2 * t },
+            { text: 'x(t) = (2 + t)e^(-3t)', ok: false, fn: t => (2 + t) * Math.exp(-3 * t) }
+          ],
+          l3Q: 'Quantas vezes a massa do amortecedor crítico pode cruzar a posição de equilíbrio x = 0?',
+          l3Opts: [
+            { text: 'No máximo 1 vez antes de repousar em zero', ok: true },
+            { text: 'Infinitas vezes em oscilação periódica', ok: false },
+            { text: 'Exatamente 3 vezes', ok: false },
+            { text: 'Nunca pode se aproximar de zero', ok: false }
+          ]
+        },
+        {
+          bossName: 'Chefe Kirchhoff (Subestação RLC - Fase 3)', type: 'circuito', L: 1, R: 4, invC: 13,
+          dampingCategory: 'Subamortecido (Oscilatório Amortecido)', edoStr: 'Q″ + 4Q′ + 13Q = 0', icStr: 'Q(0) = 1, I(0) = Q′(0) = 0',
+          l1Exp: 'R² = 16 e 4L/C = 52. R² < 4L/C gera raízes r = -2 ± 3i, caracterizando subamortecimento.',
+          solStr: 'Q(t) = e^(-2t)(cos(3t) + (2/3)sen(3t))', solFn: t => Math.exp(-2 * t) * (Math.cos(3 * t) + (2/3) * Math.sin(3 * t)),
+          l2Opts: [
+            { text: 'Q(t) = e^(-2t)(cos(3t) + (2/3)sen(3t))', ok: true, fn: t => Math.exp(-2 * t) * (Math.cos(3 * t) + (2/3) * Math.sin(3 * t)) },
+            { text: 'Q(t) = e^(2t)(cos(3t) + (2/3)sen(3t))', ok: false, fn: t => Math.exp(2 * t) * (Math.cos(3 * t) + (2/3) * Math.sin(3 * t)) },
+            { text: 'Q(t) = e^(-2t)(sen(3t) + (2/3)cos(3t))', ok: false, fn: t => Math.exp(-2 * t) * (Math.sin(3 * t) + (2/3) * Math.cos(3 * t)) },
+            { text: 'Q(t) = cos(3t) + (2/3)sen(3t)', ok: false, fn: t => Math.cos(3 * t) + (2/3) * Math.sin(3 * t) }
+          ],
+          l3Q: 'Qual a quase-frequência angular ω de oscilação da carga elétrica no circuito?',
+          l3Opts: [
+            { text: 'ω = √(1/LC - R²/(4L²)) = √(13 - 4) = 3 rad/s', ok: true },
+            { text: 'ω = √(1/LC) = √13 rad/s (frequência natural pura)', ok: false },
+            { text: 'ω = R / (2L) = 2 rad/s', ok: false },
+            { text: 'ω = 13 rad/s', ok: false }
+          ]
+        },
+        {
+          bossName: 'Chefe Kirchhoff (Transformador - Fase 4)', type: 'circuito', L: 1, R: 6, invC: 5,
+          dampingCategory: 'Superamortecido (Aperiódico)', edoStr: 'Q″ + 6Q′ + 5Q = 0', icStr: 'Q(0) = 1, Q′(0) = 0',
+          l1Exp: 'R² = 36 e 4L/C = 20. R² > 4L/C resulta em raízes reais r₁ = -1 e r₂ = -5 (superamortecido).',
+          solStr: 'Q(t) = (5/4)e^(-t) - (1/4)e^(-5t)', solFn: t => (5/4) * Math.exp(-t) - (1/4) * Math.exp(-5 * t),
+          l2Opts: [
+            { text: 'Q(t) = (5/4)e^(-t) - (1/4)e^(-5t)', ok: true, fn: t => (5/4) * Math.exp(-t) - (1/4) * Math.exp(-5 * t) },
+            { text: 'Q(t) = (5/4)e^(t) - (1/4)e^(5t)', ok: false, fn: t => (5/4) * Math.exp(t) - (1/4) * Math.exp(5 * t) },
+            { text: 'Q(t) = (5/4)e^(-t) + (1/4)e^(-5t)', ok: false, fn: t => (5/4) * Math.exp(-t) + (1/4) * Math.exp(-5 * t) },
+            { text: 'Q(t) = (1/4)e^(-t) - (5/4)e^(-5t)', ok: false, fn: t => (1/4) * Math.exp(-t) - (5/4) * Math.exp(-5 * t) }
+          ],
+          l3Q: 'No regime superamortecido, o circuito manifesta oscilações senoidais?',
+          l3Opts: [
+            { text: 'Não há oscilação: a carga dissipa-se de forma estritamente aperiódica', ok: true },
+            { text: 'Sim, oscila com alta frequência antes de zerar', ok: false },
+            { text: 'A carga cresce sem limites em arco elétrico', ok: false },
+            { text: 'Oscila com período constante de 2π segundos', ok: false }
+          ]
+        }
+      ];
+      return phases.map((p, idx) => {
+        const l1Options = allDampingTypes.map(d => ({ text: d, ok: d === p.dampingCategory }));
+        const bossAvatar = idx < 2 ? 'hooke' : 'kirchhoff';
+        return {
+          isDecoy: false, name: p.bossName, edo: p.edoStr, ic: p.icStr, threat: 'CHEFE DUPLO', avatar: bossAvatar,
+          layer1: { question: `Classifique o regime de amortecimento físico deste alvo:`, options: shuffle(l1Options), hint: 'Compare c² com 4mk na mola, ou R² com 4L/C no circuito RLC.', explanation: p.l1Exp },
+          layer2: {
+            question: `Determine a função de resposta temporal que resolve o PVI:`, options: shuffle(p.l2Opts),
+            hint: 'Resolva a equação característica e aplique as condições iniciais.', explanation: `A solução exata do sistema físico é ${p.solStr}.`,
+            customCheck: (opt) => {
+              const testT = 0.4, val = opt.fn(testT), expected = p.solFn(testT);
+              if (Math.abs(val - expected) < 0.05) return `Verificação confirmada! Em t = ${testT}: valor calculado = ${val.toFixed(3)}, curva física = ${expected.toFixed(3)}.`;
+              return `Falha no teste temporal! Em t = ${testT}: candidato deu ${val.toFixed(3)}, mas o sistema exige ${expected.toFixed(3)}.`;
+            }
+          },
+          layer3: { question: p.l3Q, options: shuffle(p.l3Opts), hint: 'Stewart 17.3 detalha os parâmetros e comportamentos de molas e circuitos.', explanation: 'A teoria física de Stewart 17.3 comprova a relação entre coeficientes e dinâmica.' }
+        };
+      });
+    }
+
+    // --- Mission 17.4 Generator (Power Series & Frobenius Boss) ---
+    function generateMission174() {
+      const phases = [
+        {
+          name: 'Frobenius - Núcleo Exponencial (Fase 1/5)', edo: 'y′ = 2y', ic: 'y(0) = c₀ = 1',
+          l1Q: 'Qual a relação de recorrência para os coeficientes de y = Σ cₙxⁿ?',
+          l1Opts: [{ text: 'c_{n+1} = 2 c_n / (n + 1)', ok: true }, { text: 'c_{n+1} = 2 c_n', ok: false }, { text: 'c_{n+1} = c_n / (2(n + 1))', ok: false }, { text: 'c_{n+2} = 2 c_n / (n + 1)', ok: false }],
+          l1Exp: 'Substituindo y′ = Σ (n+1)c_{n+1}xⁿ e 2y = Σ 2cₙxⁿ, igualando os coeficientes obtemos c_{n+1} = 2cₙ / (n+1).',
+          l2Q: 'Com c₀ = 1, calcule o coeficiente c₃ da série de potências:',
+          l2Opts: [{ text: 'c₃ = 8 / 6 = 4/3', ok: true }, { text: 'c₃ = 2/3', ok: false }, { text: 'c₃ = 8', ok: false }, { text: 'c₃ = 1/6', ok: false }],
+          l2Exp: 'c₁ = 2c₀/1 = 2; c₂ = 2c₁/2 = 2; c₃ = 2c₂/3 = 4/3.',
+          l3Q: 'Identifique a função analítica fechada representada pela série Σ cₙxⁿ:',
+          l3Opts: [{ text: 'y(x) = e^(2x) = Σ (2x)ⁿ / n!', ok: true }, { text: 'y(x) = cos(2x)', ok: false }, { text: 'y(x) = 1 / (1 - 2x)', ok: false }, { text: 'y(x) = ln(1 + 2x)', ok: false }],
+          l3Exp: 'Reconhecemos a série de Maclaurin de e^(2x), solução exata da EDO y′ = 2y com y(0) = 1.'
+        },
+        {
+          name: 'Frobenius - Ressonador Trigonométrico (Fase 2/5)', edo: 'y″ + 9y = 0', ic: 'y(0) = 1, y′(0) = 0',
+          l1Q: 'Qual a relação de recorrência obtida ao substituir y = Σ cₙxⁿ?',
+          l1Opts: [{ text: 'c_{n+2} = -9 c_n / ((n + 1)(n + 2))', ok: true }, { text: 'c_{n+2} = 9 c_n / ((n + 1)(n + 2))', ok: false }, { text: 'c_{n+1} = -9 c_n / (n + 1)', ok: false }, { text: 'c_{n+2} = -3 c_n / (n + 2)', ok: false }],
+          l1Exp: 'y″ = Σ (n+2)(n+1)c_{n+2}xⁿ. Somando com 9Σ cₙxⁿ = 0 resulta em c_{n+2} = -9cₙ / ((n+1)(n+2)).',
+          l2Q: 'Com c₀ = 1 e c₁ = 0, calcule o quarto termo c₄:',
+          l2Opts: [{ text: 'c₄ = 81 / 24 = 27/8', ok: true }, { text: 'c₄ = -27/8', ok: false }, { text: 'c₄ = 9/8', ok: false }, { text: 'c₄ = 81/4', ok: false }],
+          l2Exp: 'c₂ = -9(1)/(1·2) = -9/2. c₄ = -9(-9/2)/(3·4) = 81/24 = 27/8.',
+          l3Q: 'Qual função a série de potências constrói para este PVI?',
+          l3Opts: [{ text: 'y(x) = cos(3x) = 1 - 9x²/2! + 81x⁴/4! - ...', ok: true }, { text: 'y(x) = sen(3x)', ok: false }, { text: 'y(x) = e^(-9x)', ok: false }, { text: 'y(x) = cosh(3x)', ok: false }],
+          l3Exp: 'Como c₁ = 0, todos os termos ímpares anulam-se e os termos pares alternam sinais formando cos(3x).'
+        },
+        {
+          name: 'Frobenius - Barreira de Airy (Fase 3/5)', edo: 'y″ = x·y (Equação de Airy)', ic: 'y(0) = c₀ = 1, y′(0) = c₁ = 0',
+          l1Q: 'Qual a relação de recorrência para a equação de Airy y″ - xy = 0?',
+          l1Opts: [{ text: 'c_{n+2} = c_{n-1} / ((n + 1)(n + 2))  (para n ≥ 1) com c₂ = 0', ok: true }, { text: 'c_{n+2} = c_n / ((n + 1)(n + 2))', ok: false }, { text: 'c_{n+1} = c_n / (n + 1)', ok: false }, { text: 'c_{n+2} = -c_{n-1} / (n + 1)', ok: false }],
+          l1Exp: 'Multiplicar y por x desloca a potência de x em 1, gerando o salto de 3 índices c_{n+2} = c_{n-1} / ((n+1)(n+2)).',
+          l2Q: 'Com c₀ = 1 e c₁ = 0, calcule o coeficiente c₃ da função de Airy:',
+          l2Opts: [{ text: 'c₃ = 1 / (2 · 3) = 1/6', ok: true }, { text: 'c₃ = 1/3', ok: false }, { text: 'c₃ = 0', ok: false }, { text: 'c₃ = -1/6', ok: false }],
+          l2Exp: 'Para n = 1: c₃ = c₀ / (2·3) = 1/6.',
+          l3Q: 'Qual o raio de convergência R da série de potências da Equação de Airy?',
+          l3Opts: [{ text: 'R = ∞ (A série converge absolutamente para todo x real)', ok: true }, { text: 'R = 1 (Diverge para |x| > 1)', ok: false }, { text: 'R = 0 (Converge somente na origem)', ok: false }, { text: 'R = 1/6', ok: false }],
+          l3Exp: 'Como os coeficientes p(x)=0 e q(x)=-x são analíticos em toda a reta, o raio de convergência é infinito (Stewart 17.4).'
+        },
+        {
+          name: 'Frobenius - Pulso Harmônico Ímpar (Fase 4/5)', edo: 'y″ + 4y = 0', ic: 'y(0) = 0, y′(0) = 1',
+          l1Q: 'Com c₀ = 0 e c₁ = 1, como se comportam os coeficientes pares e ímpares?',
+          l1Opts: [{ text: 'Todos os termos pares c₂ₙ são nulos; apenas os ímpares sobrevivem', ok: true }, { text: 'Todos os termos ímpares são nulos', ok: false }, { text: 'Nenhum coeficiente se anula', ok: false }, { text: 'Todos os coeficientes tornam-se constantes iguais a 1', ok: false }],
+          l1Exp: 'Como c₀ = 0 e c_{n+2} depende de cₙ, todos os coeficientes pares c₂, c₄, c₆... são zero.',
+          l2Q: 'Calcule o coeficiente c₃ da solução:',
+          l2Opts: [{ text: 'c₃ = -4(1) / (2 · 3) = -2/3', ok: true }, { text: 'c₃ = 2/3', ok: false }, { text: 'c₃ = -4/3', ok: false }, { text: 'c₃ = 0', ok: false }],
+          l2Exp: 'c₃ = -4 c₁ / (2·3) = -4/6 = -2/3.',
+          l3Q: 'Qual a solução analítica final deste pulso harmônico?',
+          l3Opts: [{ text: 'y(x) = (1/2) sen(2x)', ok: true }, { text: 'y(x) = sen(4x)', ok: false }, { text: 'y(x) = cos(2x)', ok: false }, { text: 'y(x) = e^(2x) - e^(-2x)', ok: false }],
+          l3Exp: 'x - (2/3)x³ + ... = (1/2)( (2x) - (2x)³/3! + ... ) = (1/2) sen(2x).'
+        },
+        {
+          name: 'Frobenius - Convergência Final (Fase 5/5)', edo: 'y″ = x·y (Termo de 6ª ordem)', ic: 'y(0) = c₀ = 1, y′(0) = 0',
+          l1Q: 'Qual o valor do próximo termo não-nulo da série de Airy, c₆?',
+          l1Opts: [{ text: 'c₆ = c₃ / (5 · 6) = (1/6) / 30 = 1/180', ok: true }, { text: 'c₆ = 1/60', ok: false }, { text: 'c₆ = 1/36', ok: false }, { text: 'c₆ = 1/720', ok: false }],
+          l1Exp: 'Pela recorrência com n = 4: c₆ = c₃ / (5·6) = (1/6) / 30 = 1/180.',
+          l2Q: 'Qual a expressão dos três primeiros termos da solução fundamental de Airy?',
+          l2Opts: [{ text: 'y(x) = 1 + x³/6 + x⁶/180 + ...', ok: true }, { text: 'y(x) = 1 + x²/2 + x⁴/24 + ...', ok: false }, { text: 'y(x) = x + x⁴/12 + x⁷/504 + ...', ok: false }, { text: 'y(x) = 1 - x³/6 + x⁶/180 - ...', ok: false }],
+          l2Exp: 'y(x) = c₀ + c₁x + c₂x² + c₃x³ + c₄x⁴ + c₅x⁵ + c₆x⁶... Com c₁=c₂=c₄=c₅=0, y(x) = 1 + x³/6 + x⁶/180 + ...',
+          l3Q: 'O que o Teorema de Frobenius e Séries de Potências garante sobre esta solução?',
+          l3Opts: [{ text: 'A série de potências define uma função analítica global e infinitamente diferenciável', ok: true }, { text: 'A solução possui uma singularidade essencial na origem', ok: false }, { text: 'A solução diverge para todo x diferente de zero', ok: false }, { text: 'A solução é estritamente periódica', ok: false }],
+          l3Exp: 'Como x = 0 é um ponto ordinário da EDO, o método de séries de potências produz soluções analíticas em todo o plano complexo.'
+        }
+      ];
+      return phases.map(p => ({
+        isDecoy: false, name: p.name, edo: p.edo, ic: p.ic, threat: 'CHEFE FINAL', avatar: 'frobenius',
+        layer1: { question: p.l1Q, options: shuffle(p.l1Opts), hint: 'Consulte o método de coeficientes indeterminados para séries em Stewart 17.4.', explanation: p.l1Exp },
+        layer2: {
+          question: p.l2Q, options: shuffle(p.l2Opts), hint: 'Substitua passo a passo os coeficientes anteriores na relação de recorrência.', explanation: p.l2Exp,
+          customCheck: (opt) => opt.ok ? 'Cálculo de coeficientes exato! Recorrência validada algebricamente.' : 'Falha no cálculo: o denominador ou índice da série está incorreto.'
+        },
+        layer3: { question: p.l3Q, options: shuffle(p.l3Opts), hint: 'Compare a soma parcial da série com as expansões notáveis de Maclaurin.', explanation: p.l3Exp }
+      }));
+    }
+
+    // --- High Score Persistence ---
+    const STORAGE_KEY = 'edofilter_v1';
+    function getStoredData() {
+      try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : {}; }
+      catch (e) { return {}; }
+    }
+    function saveMissionScore(missionId, mode, score) {
+      try {
+        const data = getStoredData(); const key = `${missionId}_${mode}`;
+        if (!data[key] || score > data[key]) { data[key] = score; localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); return true; }
+      } catch (e) {}
+      return false;
+    }
+    function getMissionScore(missionId, mode) { return getStoredData()[`${missionId}_${mode}`] || 0; }
+
+    // --- Main Game Orchestrator ---
+    class EdoFilterGame {
+      constructor() {
+        this.currentScreen = 'menu'; this.currentMissionId = '9-3'; this.currentMode = 'recruta';
+        this.targets = []; this.currentTargetIndex = 0; this.currentLayer = 1; this.score = 0;
+        this.alerts = 0; this.verificationCharges = 3; this.selectedOptionIndex = null;
+        this.timerRemaining = 30; this.timerTotal = 30; this.timerInterval = null; this.layer2HintUsed = false;
+        this.layer3HintUsed = false; this.lastFeedback = null;
+        this.initSettings();
+      }
+      initSettings() {
+        try {
+          const raw = localStorage.getItem('edofilter_adv_settings');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            this.settings = {
+              timerSpeed: typeof parsed.timerSpeed === 'number' ? parsed.timerSpeed : 1.0,
+              mathComplexity: typeof parsed.mathComplexity === 'number' ? parsed.mathComplexity : 1.0
+            };
+          } else {
+            this.settings = { timerSpeed: 1.0, mathComplexity: 1.0 };
+          }
+        } catch (e) {
+          this.settings = { timerSpeed: 1.0, mathComplexity: 1.0 };
+        }
+        this.tempSettings = { ...this.settings };
+      }
+      openSettings() {
+        audio.play('click');
+        this.tempSettings = { ...this.settings };
+        const overlay = document.getElementById('settings-overlay');
+        if (overlay) {
+          overlay.style.display = 'flex';
+          this.updateSettingsUI();
+        }
+      }
+      closeSettings() {
+        audio.play('click');
+        const overlay = document.getElementById('settings-overlay');
+        if (overlay) overlay.style.display = 'none';
+      }
+      setTimerSpeed(val) {
+        this.tempSettings.timerSpeed = parseFloat(val);
+        this.updateSettingsUI();
+      }
+      setMathComplexity(val) {
+        this.tempSettings.mathComplexity = parseFloat(val);
+        this.updateSettingsUI();
+      }
+      resetSettings() {
+        audio.play('beep');
+        this.tempSettings = { timerSpeed: 1.0, mathComplexity: 1.0 };
+        this.updateSettingsUI();
+      }
+      saveSettings() {
+        audio.play('correct');
+        this.settings = { ...this.tempSettings };
+        try { localStorage.setItem('edofilter_adv_settings', JSON.stringify(this.settings)); } catch (e) {}
+        this.closeSettings();
+        if (this.currentScreen === 'menu') {
+          this.render();
+        } else if (this.currentScreen === 'target') {
+          this.startTimerIfNeeded();
+          this.render();
+        }
+      }
+      updateSettingsUI() {
+        const speedVal = this.tempSettings.timerSpeed || 1.0;
+        const compVal = this.tempSettings.mathComplexity || 1.0;
+        const sliderSpeed = document.getElementById('setting-timer-slider');
+        const sliderComp = document.getElementById('setting-comp-slider');
+        const badgeSpeed = document.getElementById('setting-timer-badge');
+        const badgeComp = document.getElementById('setting-comp-badge');
+        const descSpeed = document.getElementById('setting-timer-desc');
+        const descComp = document.getElementById('setting-comp-desc');
+        const telemSpeed = document.getElementById('telem-timer-val');
+        const telemComp = document.getElementById('telem-comp-val');
+        const telemTier = document.getElementById('telem-tier-val');
+        const telemSample = document.getElementById('telem-sample-eq');
+
+        if (sliderSpeed) sliderSpeed.value = speedVal;
+        if (sliderComp) sliderComp.value = compVal;
+        if (badgeSpeed) badgeSpeed.textContent = `${speedVal.toFixed(2)}x`;
+        if (badgeComp) badgeComp.textContent = `${compVal.toFixed(2)}x`;
+
+        document.querySelectorAll('.preset-chip-speed').forEach(btn => {
+          const v = parseFloat(btn.dataset.val);
+          btn.classList.toggle('active', Math.abs(v - speedVal) < 0.05);
+        });
+        document.querySelectorAll('.preset-chip-comp').forEach(btn => {
+          const v = parseFloat(btn.dataset.val);
+          btn.classList.toggle('active', Math.abs(v - compVal) < 0.05);
+        });
+
+        const effectiveTime = Math.max(8, Math.round(30 / speedVal));
+        if (descSpeed) {
+          descSpeed.innerHTML = `Tempo por decisão: <b>${effectiveTime}s</b> (Base: 30s ÷ ${speedVal.toFixed(2)}x). ${speedVal > 1.2 ? 'Pulso crítico de 10s ativado rapidamente!' : ''}`;
+        }
+
+        let tierName = 'EQUILIBRADO PADRÃO (STEWART)';
+        let tierColor = 'var(--teal)';
+        let compSummary = 'Equações canônicas de James Stewart (Cálculo 2). Desafio analítico balanceado.';
+        let sampleEq = 'y″ + 4y′ + 13y = 0  (PVI: y(0)=1, y′(0)=0  ⟹  r = -2 ± 3i)';
+
+        if (compVal <= 0.8) {
+          tierName = 'RECRUTA ELEMENTAR (TREINO)';
+          tierColor = '#38bdf8';
+          compSummary = 'EDOs simplificadas com inteiros reduzidos (1 a 2). Menor esforço aritmético.';
+          sampleEq = 'dy/dx = 2x·y  (PVI: y(0)=1  ⟹  y = e^(x²))';
+        } else if (compVal <= 1.25) {
+          tierName = 'EQUILIBRADO PADRÃO (STEWART)';
+          tierColor = 'var(--teal)';
+          compSummary = 'EDOs canônicas de James Stewart (Cálculo 2). Desafio equilibrado e rigoroso.';
+          sampleEq = 'y″ + 4y′ + 13y = 0  (PVI: y(0)=1, y′(0)=0  ⟹  r = -2 ± 3i)';
+        } else if (compVal <= 1.6) {
+          tierName = 'VETERANO AVANÇADO (KREYSZIG/BOYCE)';
+          tierColor = 'var(--amber)';
+          compSummary = 'Coeficientes ampliados (3 a 6), frequências forçantes maiores e raízes compostas.';
+          sampleEq = 'y″ + 6y′ + 25y = 0  (PVI: y(0)=2, y′(0)=1  ⟹  r = -3 ± 4i)';
+        } else {
+          tierName = 'PESADELO SOVIÉTICO (HARDCORE)';
+          tierColor = 'var(--red)';
+          compSummary = 'Coeficientes pesados (5 a 9), raízes com alta oscilação e distratores de alta proximidade analítica.';
+          sampleEq = 'y″ + 8y′ + 65y = 0  (PVI: y(0)=3, y′(0)=2  ⟹  r = -4 ± 7i)';
+        }
+
+        if (descComp) descComp.textContent = compSummary;
+        if (telemSpeed) telemSpeed.textContent = `${speedVal.toFixed(2)}x (${effectiveTime}s)`;
+        if (telemComp) telemComp.textContent = `${compVal.toFixed(2)}x`;
+        if (telemTier) {
+          telemTier.textContent = tierName;
+          telemTier.style.color = tierColor;
+        }
+        if (telemSample) telemSample.textContent = sampleEq;
+      }
+      start() { this.render(); }
+      goHome() { if (this.timerInterval) clearInterval(this.timerInterval); this.currentScreen = 'menu'; this.render(); }
+      setMode(mode) { audio.play('click'); this.currentMode = mode; this.render(); }
+      toggleSound() {
+        audio.enabled = !audio.enabled;
+        const soundEl = document.getElementById('sound-icon');
+        if (soundEl) soundEl.textContent = audio.enabled ? 'SND: ON' : 'SND: OFF';
+      }
+      toggleScanlines() {
+        const el = document.getElementById('scanlines-overlay');
+        if (el) el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+      }
+      selectMission(id) {
+        audio.play('click'); this.currentMissionId = id;
+        this.currentScreen = (this.currentMode === 'recruta') ? 'briefing' : 'target';
+        if (this.currentScreen === 'target') this.launchMission();
+        else this.render();
+      }
+      launchMission() {
+        audio.play('scan');
+        const cfg = MISSIONS_CONFIG[this.currentMissionId];
+        this.targets = cfg.buildTargets(); this.currentTargetIndex = 0; this.currentLayer = 1;
+        this.score = 0; this.alerts = 0; this.verificationCharges = (this.currentMode === 'treino') ? 99 : 3;
+        this.selectedOptionIndex = null; this.layer2HintUsed = false; this.layer3HintUsed = false;
+        this.currentScreen = 'target'; this.startTimerIfNeeded(); this.render();
+      }
+      startTimerIfNeeded() {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        if (this.currentMode === 'veterano') {
+          const speed = (this.settings && this.settings.timerSpeed) ? this.settings.timerSpeed : 1.0;
+          const baseDuration = Math.max(8, Math.round(30 / speed));
+          this.timerTotal = baseDuration;
+          this.timerRemaining = baseDuration;
+          const timerBar = document.getElementById('timer-bar-fill');
+          if (timerBar) {
+            timerBar.style.width = '100%';
+            timerBar.classList.remove('danger');
+          }
+          this.timerInterval = setInterval(() => {
+            this.timerRemaining--;
+            const bar = document.getElementById('timer-bar-fill');
+            if (bar) {
+              const pct = Math.max(0, (this.timerRemaining / this.timerTotal) * 100);
+              bar.style.width = `${pct}%`;
+              if (this.timerRemaining <= 10) bar.classList.add('danger');
+              else bar.classList.remove('danger');
+            }
+            if (this.timerRemaining <= 0) {
+              clearInterval(this.timerInterval);
+              this.handleTimeout();
+            }
+          }, 1000);
+        }
+      }
+      handleTimeout() {
+        audio.play('alert'); this.alerts++;
+        const target = this.targets[this.currentTargetIndex];
+        const correctOpt = (this.currentLayer === 1 ? target.layer1.options : (this.currentLayer === 2 ? target.layer2.options : target.layer3.options)).find(o => o.ok);
+        this.showFeedback({
+          isSuccess: false, title: 'TEMPO ESGOTADO // ALERTA DISPARADO',
+          text: `A contagem de ${this.timerTotal || 30}s expirou! Resposta esperada: "${correctOpt ? correctOpt.text : ''}".`,
+          isFatal: this.alerts >= 3 && this.currentMode !== 'treino'
+        });
+      }
+      selectOption(idx) {
+        audio.play('click'); this.selectedOptionIndex = idx;
+        document.querySelectorAll('.choice-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+      }
+      verifyStealth() {
+        if (this.selectedOptionIndex === null) { alert('Selecione primeiro uma alternativa para escanear!'); return; }
+        if (this.verificationCharges <= 0 && this.currentMode !== 'treino') { alert('Cargas de verificação esgotadas nesta missão!'); return; }
+        audio.play('scan');
+        if (this.currentMode !== 'treino') this.verificationCharges--;
+        const target = this.targets[this.currentTargetIndex], opt = target.layer2.options[this.selectedOptionIndex];
+        let resultMsg = '', passed = false;
+        if (target.layer2.customCheck) {
+          resultMsg = target.layer2.customCheck(opt); passed = opt.ok;
+        } else if (target.layer2.isSecondOrder) {
+          const testX = 0.35, yVal = opt.fn(testX), ypVal = deriv1(opt.fn, testX), yppVal = deriv2(opt.fn, testX);
+          const lhs = yppVal + target.layer2.p * ypVal + target.layer2.q * yVal;
+          const icDiff = Math.abs(opt.fn(0) - target.layer2.y0);
+          if (Math.abs(lhs) < 0.08 && icDiff < 0.08) {
+            resultMsg = `Verificação APROVADA: Em x = ${testX}: y″ + ${target.layer2.p}y′ + ${target.layer2.q}y ≈ ${lhs.toFixed(3)} (0,00 exigido). PVI satisfeito!`; passed = true;
+          } else if (icDiff >= 0.08) {
+            resultMsg = `Falha no PVI: Em x = 0: y(0) = ${opt.fn(0).toFixed(2)}, mas a EDO exige y(0) = ${target.layer2.y0}.`;
+          } else {
+            resultMsg = `Falha na EDO: Em x = ${testX}: Lado esquerdo resulta em ${lhs.toFixed(2)}, mas a homogênea exige 0.`;
+          }
+        } else {
+          const x0 = target.layer2.x0 || 0.0, testX = x0 + 0.30;
+          const yVal = opt.fn(testX), ypVal = deriv1(opt.fn, testX), rhsVal = target.layer2.testRhs(testX, yVal);
+          const diff = Math.abs(ypVal - rhsVal);
+          if (diff < 0.08) {
+            resultMsg = `Verificação APROVADA: Em x = ${testX.toFixed(2)}: y′ ≈ ${ypVal.toFixed(2)}, EDO exige ${rhsVal.toFixed(2)}. Resíduo = ${diff.toFixed(4)}.`; passed = true;
+          } else {
+            resultMsg = `Falha na verificação: Em x = ${testX.toFixed(2)}: y′ ≈ ${ypVal.toFixed(2)}, mas a EDO exige ${rhsVal.toFixed(2)}. Diferença = ${diff.toFixed(2)}.`;
+          }
+        }
+        const resEl = document.getElementById('verification-result-box'), chgEl = document.getElementById('charges-count');
+        if (resEl) { resEl.textContent = resultMsg; resEl.className = `verification-output active ${passed ? 'passed' : ''}`; }
+        if (chgEl) chgEl.textContent = (this.currentMode === 'treino') ? 'ILIMITADAS' : `${this.verificationCharges}/3`;
+      }
+      askHint() {
+        audio.play('radio');
+        const target = this.targets[this.currentTargetIndex];
+        let hint = '';
+        if (this.currentLayer === 1) hint = target.layer1.hint;
+        else if (this.currentLayer === 2) { this.layer2HintUsed = true; hint = target.layer2.hint + ' (Dica nesta camada reduz pontos pela metade).'; }
+        else { this.layer3HintUsed = true; hint = target.layer3.hint + ' (Dica nesta camada reduz pontos pela metade).'; }
+        alert(`[TRANSMISSÃO DO DR. BERNOULLI]\n\n"${hint}"`);
+      }
+      executeCode() {
+        if (this.selectedOptionIndex === null) { alert('Selecione uma alternativa antes de executar o código!'); return; }
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        const target = this.targets[this.currentTargetIndex];
+        if (this.currentLayer === 1) {
+          const opt = target.layer1.options[this.selectedOptionIndex];
+          if (opt.ok) {
+            audio.play('correct'); this.score += 10;
+            this.showFeedback({
+              isSuccess: true, title: target.isDecoy ? 'ALVO DECOY IDENTIFICADO // RECUO TÁTICO (+10 PTS)' : 'CAMADA 1 IDENTIFICADA (+10 PTS)',
+              text: target.layer1.explanation,
+              nextAction: () => {
+                if (target.isDecoy) this.advanceToNextTarget();
+                else { this.currentLayer = 2; this.selectedOptionIndex = null; this.currentScreen = 'target'; this.startTimerIfNeeded(); this.render(); }
+              }
+            });
+          } else {
+            audio.play('alert'); this.alerts++;
+            const isFatal = this.alerts >= 3 && this.currentMode !== 'treino';
+            this.showFeedback({
+              isSuccess: false, title: 'ERRO DE IDENTIFICAÇÃO // ALERTA DISPARADO', text: target.layer1.explanation, isFatal: isFatal,
+              nextAction: () => {
+                if (target.isDecoy) this.advanceToNextTarget();
+                else { this.currentLayer = 2; this.selectedOptionIndex = null; this.currentScreen = 'target'; this.startTimerIfNeeded(); this.render(); }
+              }
+            });
+          }
+        } else if (this.currentLayer === 2) {
+          const opt = target.layer2.options[this.selectedOptionIndex];
+          if (opt.ok) {
+            audio.play('correct'); const pts = this.layer2HintUsed ? 15 : 30; this.score += pts;
+            this.showFeedback({
+              isSuccess: true, title: `CAMADA 2 RESOLVIDA (+${pts} PTS)`, text: target.layer2.explanation,
+              nextAction: () => { this.currentLayer = 3; this.selectedOptionIndex = null; this.currentScreen = 'target'; this.startTimerIfNeeded(); this.render(); }
+            });
+          } else {
+            audio.play('alert'); this.alerts++;
+            const isFatal = this.alerts >= 3 && this.currentMode !== 'treino';
+            this.showFeedback({
+              isSuccess: false, title: 'CÓDIGO INCORRETO // ALERTA DISPARADO',
+              text: `O código analítico falhou. ${target.layer2.explanation} Camada 3 ignorada neste alvo.`, isFatal: isFatal,
+              nextAction: () => this.advanceToNextTarget()
+            });
+          }
+        } else if (this.currentLayer === 3) {
+          const opt = target.layer3.options[this.selectedOptionIndex];
+          if (opt.ok) {
+            audio.play('correct'); const pts = this.layer3HintUsed ? 10 : 20; this.score += pts;
+            this.showFeedback({ isSuccess: true, title: `ALVO NEUTRALIZADO TOTALMENTE (+${pts} PTS)`, text: target.layer3.explanation, nextAction: () => this.advanceToNextTarget() });
+          } else {
+            audio.play('alert'); this.alerts++;
+            const isFatal = this.alerts >= 3 && this.currentMode !== 'treino';
+            this.showFeedback({ isSuccess: false, title: 'INTERPRETAÇÃO FÍSICA INCORRETA // ALERTA', text: target.layer3.explanation, isFatal: isFatal, nextAction: () => this.advanceToNextTarget() });
+          }
+        }
+      }
+      showFeedback(info) { this.lastFeedback = info; this.currentScreen = 'feedback'; this.render(); }
+      advanceToNextTarget() {
+        this.currentTargetIndex++;
+        if (this.currentTargetIndex >= this.targets.length) this.finishMission(true);
+        else {
+          this.currentLayer = 1; this.selectedOptionIndex = null; this.layer2HintUsed = false;
+          this.layer3HintUsed = false; this.currentScreen = 'target'; this.startTimerIfNeeded(); this.render();
+        }
+      }
+      finishMission(isSuccess) {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.currentScreen = 'result'; this.isVictory = isSuccess;
+        if (isSuccess) saveMissionScore(this.currentMissionId, this.currentMode, this.score);
+        this.render();
+      }
+      render() {
+        const c = document.getElementById('main-content'); if (!c) return;
+        if (this.currentScreen === 'menu') c.innerHTML = this.renderMenu();
+        else if (this.currentScreen === 'briefing') c.innerHTML = this.renderBriefing();
+        else if (this.currentScreen === 'target') { c.innerHTML = this.renderTarget(); this.initTargetAnimations(); }
+        else if (this.currentScreen === 'feedback') { c.innerHTML = this.renderFeedback(); this.initFeedbackAnimation(); }
+        else if (this.currentScreen === 'result') c.innerHTML = this.renderResult();
+      }
+
+      // --- Screen Renderers ---
+      renderMenu() {
+        const missionCards = Object.keys(MISSIONS_CONFIG).map(id => {
+          const m = MISSIONS_CONFIG[id], score = getMissionScore(id, this.currentMode);
+          const isSelected = this.currentMissionId === id;
+          const isDone = score > 0;
+          return `
+            <div class="mission-item ${isSelected ? 'selected' : ''} ${isDone ? 'completed' : ''}" onclick="game.selectMission('${id}')">
+              <div class="manga-avatar-badge">
+                ${m.id === '9-3' || m.id === '17-1' ? `
+                  <img src="img/manga_lia.jpg" alt="Lia" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                  <div style="display:none;width:100%;height:100%">${getMangaAvatarSvg('lia')}</div>
+                ` : (m.id === '9-4' ? `
+                  <img src="img/manga_bernoulli.jpg" alt="Bernoulli" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                  <div style="display:none;width:100%;height:100%">${getMangaAvatarSvg('bernoulli')}</div>
+                ` : (m.id === '17-2' ? `
+                  <img src="img/manga_assintota.jpg" alt="Assíntota" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                  <div style="display:none;width:100%;height:100%">${getMangaAvatarSvg('assintota')}</div>
+                ` : getMangaAvatarSvg(m.avatarType)))}
+              </div>
+              <div class="mission-meta-block">
+                <div class="mission-headline">
+                  <span class="mission-id-tag">${m.title.split(':')[0]}</span>
+                  <span class="mission-title-text">${m.title.split(':')[1] || m.title}</span>
+                </div>
+                <span class="mission-weapon-tag">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                  ${m.weapon} // ${m.codeName}
+                </span>
+              </div>
+              <div class="mission-status-col">
+                <span class="record-pill">${isDone ? `RECORDE: ${score}` : 'NÃO CONCLUÍDA'}</span>
+                ${isDone ? `<span class="cleared-badge">CONCLUÍDA</span>` : ''}
+              </div>
+            </div>`;
+        }).join('');
+
+        return `
+          <div class="modern-card">
+            <div class="card-header-bar">
+              <span>SALA DE COMANDO // TEATRO DA GUERRA FRIA</span>
+              <div class="defcon-badge"><span class="defcon-dot"></span>DEFCON 2 // ALERTA EDO</div>
+            </div>
+
+            <!-- Mode Selector -->
+            <div class="mode-selector">
+              <button class="mode-btn ${this.currentMode === 'recruta' ? 'active' : ''}" onclick="game.setMode('recruta')">RECRUTA</button>
+              <button class="mode-btn ${this.currentMode === 'veterano' ? 'active' : ''}" onclick="game.setMode('veterano')">VETERANO</button>
+              <button class="mode-btn ${this.currentMode === 'treino' ? 'active' : ''}" onclick="game.setMode('treino')">TREINO</button>
+            </div>
+
+            <div class="mode-hint">
+              ${this.currentMode === 'recruta' ? '• <b>RECRUTA:</b> Briefings do Dr. Bernoulli antes da missão e solicitação de dicas nas camadas.' : ''}
+              ${this.currentMode === 'veterano' ? `• <b>VETERANO:</b> Limite estrito de <b>${Math.max(8, Math.round(30 / (this.settings.timerSpeed || 1.0)))}s por decisão</b> (${(this.settings.timerSpeed || 1.0).toFixed(2)}x speed) e sem auxílio de dicas!` : ''}
+              ${this.currentMode === 'treino' ? '• <b>TREINO:</b> Alertas ilimitados (sem risco de derrota) e cargas de verificação infinitas para treino.' : ''}
+            </div>
+
+            <!-- Advanced Operational Multipliers Banner -->
+            <div class="menu-settings-banner" onclick="game.openSettings()">
+              <div class="settings-banner-left">
+                <div class="settings-gear-icon">⚙</div>
+                <div>
+                  <div class="settings-banner-title">AJUSTES AVANÇADOS // MULTIPLICADORES</div>
+                  <div class="settings-banner-desc">
+                    Timer Speed: <b style="color:var(--teal)">${(this.settings.timerSpeed || 1.0).toFixed(2)}x</b> | 
+                    Math Complexity: <b style="color:var(--amber)">${(this.settings.mathComplexity || 1.0).toFixed(2)}x</b>
+                  </div>
+                </div>
+              </div>
+              <button class="btn btn-muted" style="padding:6px 12px;font-size:11px" onclick="event.stopPropagation();game.openSettings()">CALIBRAR ⚙</button>
+            </div>
+
+            <!-- Cold War Strategic Operations Map -->
+            <div class="card-header-bar" style="margin-bottom:6px">
+              <span>RADAR DE OPERAÇÕES CORTINA DE FERRO</span>
+              <span style="color:var(--amber)">8 SILOS ESTRATÉGICOS</span>
+            </div>
+            <div class="cold-war-theater">
+              <!-- Cold War War-Room Background Image with Fallback -->
+              <img src="img/cold_war_map.jpg" alt="Cold War Map" class="cold-war-bg-img" onerror="this.style.display='none'">
+              
+              <!-- Interactive SVG Tactical Radar Overlay -->
+              <svg class="cold-war-svg-overlay" viewBox="0 0 500 200">
+                <!-- Circular Radar Range Rings -->
+                <circle cx="250" cy="100" r="40" fill="none" stroke="rgba(20, 184, 166, 0.25)" stroke-width="1" stroke-dasharray="3"/>
+                <circle cx="250" cy="100" r="85" fill="none" stroke="rgba(20, 184, 166, 0.2)" stroke-width="1" stroke-dasharray="4"/>
+                <circle cx="250" cy="100" r="130" fill="none" stroke="rgba(20, 184, 166, 0.15)" stroke-width="1"/>
+                <line x1="250" y1="0" x2="250" y2="200" stroke="rgba(20, 184, 166, 0.15)" stroke-width="1"/>
+                <line x1="0" y1="100" x2="500" y2="100" stroke="rgba(20, 184, 166, 0.15)" stroke-width="1"/>
+
+                <!-- Iron Curtain Demarcation Line -->
+                <polyline points="180,10 195,50 190,80 215,110 205,150 230,190" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="4" />
+                <text x="210" y="25" fill="#ef4444" font-size="8" font-family="var(--font-mono)" letter-spacing="1">CORTINA DE FERRO</text>
+
+                <!-- Rotating Radar Beam -->
+                <g class="radar-sweep-line">
+                  <line x1="250" y1="100" x2="250" y2="0" stroke="rgba(20, 184, 166, 0.6)" stroke-width="2" />
+                  <polygon points="250,100 220,0 250,0" fill="rgba(20, 184, 166, 0.08)" />
+                </g>
+
+                <!-- 8 Mission Silo Pins -->
+                ${Object.keys(MISSIONS_CONFIG).map((id, i) => {
+                  const x = 45 + i * 58;
+                  const y = 45 + ((i * 37) % 110);
+                  const isCur = this.currentMissionId === id;
+                  const isDone = getMissionScore(id, this.currentMode) > 0;
+                  const dotColor = isCur ? '#14b8a6' : (isDone ? '#f59e0b' : '#64748b');
+                  return `
+                    <g class="missile-marker" onclick="game.selectMission('${id}')">
+                      <!-- Ping ring -->
+                      <circle cx="${x}" cy="${y}" r="${isCur ? 12 : 8}" fill="${dotColor}" fill-opacity="${isCur ? 0.35 : 0.15}" stroke="${dotColor}" stroke-width="${isCur ? 2 : 1.2}"/>
+                      <circle cx="${x}" cy="${y}" r="${isCur ? 5 : 3.5}" fill="${dotColor}"/>
+                      <!-- Sector text label -->
+                      <text x="${x}" y="${y + 16}" fill="${dotColor}" font-size="9" font-family="var(--font-mono)" font-weight="bold" text-anchor="middle">${id}</text>
+                    </g>
+                  `;
+                }).join('')}
+              </svg>
+            </div>
+
+            <!-- Missions List with Manga Thumbnails -->
+            <div class="mission-list">
+              ${missionCards}
+            </div>
+          </div>
+        `;
+      }
+
+      renderBriefing() {
+        const m = MISSIONS_CONFIG[this.currentMissionId];
+        return `
+          <div class="modern-card briefing-box">
+            <div class="card-header-bar">
+              <span>CANAL CRIPTOGRAFADO DE TRANSMISSÃO // BERNOULLI-LEIBNIZ</span>
+              <span style="color:var(--amber)">FREQ 140.85 MHz</span>
+            </div>
+
+            <!-- Dr Bernoulli Manga Dossier -->
+            <div class="radio-agent-dossier">
+              <div class="manga-portrait-frame">
+                <img src="img/manga_bernoulli.jpg" alt="Dr Bernoulli" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                <div style="display:none;width:100%;height:100%">${getMangaAvatarSvg('bernoulli')}</div>
+              </div>
+              <div class="dossier-bio">
+                <div class="dossier-name">DR. BERNOULLI</div>
+                <div class="dossier-title">Especialista Chefe em EDOs // Inteligência Tática</div>
+                <div class="audio-freq-meter">
+                  <svg class="lemniscata-wave-svg" viewBox="0 0 70 20">
+                    <path d="M10,10 C10,3 28,3 35,10 C42,17 60,17 60,10 C60,3 42,3 35,10 C28,17 10,17 10,10 Z" fill="none" stroke="#f97316" stroke-width="2"/>
+                  </svg>
+                  <span style="font-size:9px;font-family:var(--font-mono);color:var(--orange)">LEMNISCATA ATIVA</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 style="font-size:16px;color:var(--text);margin-bottom:4px">${m.title}</h2>
+              <div style="font-size:11px;font-family:var(--font-mono);color:var(--text-muted)">SETOR: ${m.codeName} // ${m.lat}</div>
+            </div>
+
+            <div class="briefing-speech-bubble">
+              "${m.briefing}"
+            </div>
+
+            <div class="weapon-grant-card">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+              <span>EQUIPAMENTO HOMOLOGADO: <b>${m.weapon}</b> (${m.chapter})</span>
+            </div>
+
+            <div class="footer-action-row">
+              <button class="btn btn-muted" onclick="game.goHome()" style="flex:1">VOLTAR</button>
+              <button class="btn btn-teal" onclick="game.launchMission()" style="flex:2">INICIAR OPERAÇÃO</button>
+            </div>
+          </div>
+        `;
+      }
+
+      renderTarget() {
+        const target = this.targets[this.currentTargetIndex];
+        const m = MISSIONS_CONFIG[this.currentMissionId];
+        const isVeterano = this.currentMode === 'veterano';
+
+        const alertLamps = [1, 2, 3].map(n => `
+          <div class="alert-lamp ${this.alerts >= n ? 'lit' : ''}"></div>
+        `).join('');
+
+        let layerTitle = 'CAMADA 1: IDENTIFICAR MODELO', qText = target.layer1.question, optList = target.layer1.options;
+        if (this.currentLayer === 2) { layerTitle = 'CAMADA 2: RESOLVER (CÓDIGO ANALÍTICO)'; qText = target.layer2.question; optList = target.layer2.options; }
+        else if (this.currentLayer === 3) { layerTitle = 'CAMADA 3: INTERPRETAR DINÂMICA FÍSICA'; qText = target.layer3.question; optList = target.layer3.options; }
+
+        const optionsHtml = optList.map((opt, i) => `
+          <button class="choice-btn ${this.selectedOptionIndex === i ? 'active' : ''}" onclick="game.selectOption(${i})">
+            <span class="choice-key">${String.fromCharCode(65 + i)}</span>
+            <span class="choice-content">${opt.text}</span>
+          </button>
+        `).join('');
+
+        const totalTargets = this.targets.length;
+        const completedCount = this.currentTargetIndex;
+        const progressPct = Math.round((completedCount / totalTargets) * 100);
+
+        const segmentsHtml = this.targets.map((t, idx) => {
+          let segClass = 'pending';
+          let iconOrNum = `${idx + 1}`;
+          if (idx < this.currentTargetIndex) {
+            segClass = 'done';
+            iconOrNum = '✓';
+          } else if (idx === this.currentTargetIndex) {
+            segClass = 'current';
+            iconOrNum = `${idx + 1}`;
+          }
+          const isBossTarget = t.threat.includes('CHEFE');
+          return `
+            <div class="progress-seg ${segClass}" title="Alvo ${idx + 1}: ${t.name}">
+              ${isBossTarget && idx >= this.currentTargetIndex ? '★ ' : ''}${iconOrNum}
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <!-- Mission Progress Bar (Top of HUD) -->
+          <div class="mission-progress-container">
+            <div class="mission-progress-meta">
+              <span class="mission-progress-title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+                STATUS DA MISSÃO: ${completedCount}/${totalTargets} NEUTRALIZADOS (${progressPct}%)
+              </span>
+              <span class="mission-progress-counter">ALVO ${this.currentTargetIndex + 1} DE ${totalTargets}</span>
+            </div>
+            <div class="mission-progress-track">
+              <div class="mission-progress-fill" style="width: ${progressPct}%;"></div>
+            </div>
+            <div class="mission-progress-segments">
+              ${segmentsHtml}
+            </div>
+          </div>
+
+          <!-- HUD Ribbon -->
+          <div class="hud-ribbon">
+            <span class="hud-target-indicator">ALVO ${this.currentTargetIndex + 1}/${this.targets.length} // ${m.codeName.split('//')[0].trim()}</span>
+            <span class="hud-score-chip">PTS: ${this.score}</span>
+            <div class="hud-alert-monitor">
+              <span style="font-size:10px;color:var(--text-muted)">ALERTA:</span>
+              <div class="alert-lamps">${alertLamps}</div>
+              <svg style="width:36px;height:16px" viewBox="0 0 50 20">
+                <line x1="0" y1="4" x2="50" y2="4" stroke="#ef4444" stroke-dasharray="2" stroke-width="1.5" />
+                <path d="M0,18 Q${this.alerts * 15},16 48,${4 + Math.max(1, 14 - this.alerts * 6)}" fill="none" stroke="#14b8a6" stroke-width="2" />
+              </svg>
+            </div>
+          </div>
+
+          ${isVeterano ? `
+            <div class="timer-strip"><div id="timer-bar-fill" class="timer-fill"></div></div>
+          ` : ''}
+
+          <!-- Target Dossier with Manga Avatar -->
+          <div class="target-dossier-card">
+            <div class="target-manga-col">
+              <div class="target-portrait-box">
+                ${isBoss ? '<span class="boss-tag-flag">CHEFE</span>' : ''}
+                ${target.avatar === 'lotka-volterra' ? getMangaAvatarSvg('lotka-volterra') :
+                  (target.avatar === 'hooke' ? getMangaAvatarSvg('hooke') :
+                  (target.avatar === 'kirchhoff' ? getMangaAvatarSvg('kirchhoff') :
+                  (target.avatar === 'frobenius' ? getMangaAvatarSvg('frobenius') : getMangaAvatarSvg('operative'))))}
+              </div>
+            </div>
+
+            <div class="target-data-col">
+              <div class="target-name-id">${target.name} [${target.threat}]</div>
+              <div class="target-math-panel">
+                <div class="target-equation-text">${target.edo}</div>
+                ${target.ic ? `<div class="target-pvi-text">${target.ic}</div>` : ''}
+              </div>
+              <div class="tangent-scan-strip">
+                <canvas id="tangent-scan-canvas" class="tangent-canvas"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Layer Action Card -->
+          <div class="layer-action-card">
+            <div class="layer-title-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z"/></svg>
+              <span>${layerTitle}</span>
+            </div>
+
+            <div class="layer-prompt">${qText}</div>
+
+            <div class="options-stack">
+              ${optionsHtml}
+            </div>
+
+            <!-- Stealth Verification Panel (Layer 2) -->
+            ${this.currentLayer === 2 ? `
+              <div class="verification-hub">
+                <div class="verification-header">
+                  <span>CARGAS DE VERIFICAÇÃO: <b id="charges-count">${this.currentMode === 'treino' ? 'ILIMITADAS' : `${this.verificationCharges}/3`}</b></span>
+                  <button class="btn btn-amber" onclick="game.verifyStealth()" style="padding:5px 12px;font-size:11px;min-height:36px">
+                    VERIFICAR
+                  </button>
+                </div>
+                <div id="verification-result-box" class="verification-output"></div>
+              </div>
+            ` : ''}
+
+            <div class="footer-action-row">
+              ${this.currentMode === 'recruta' ? `
+                <button class="btn btn-muted" onclick="game.askHint()" style="flex:1">PEDIR DICA</button>
+              ` : ''}
+              <button class="btn btn-teal" onclick="game.executeCode()" style="flex:2">
+                ${target.isDecoy && this.currentLayer === 1 ? 'CONFIRMAR AÇÃO' : 'EXECUTAR CÓDIGO'}
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      renderFeedback() {
+        const fb = this.lastFeedback;
+        return `
+          <div class="feedback-sheet ${!fb.isSuccess ? 'shake-alert' : ''}">
+            <div class="feedback-status-pill ${fb.isSuccess ? 'success' : 'alert'}">
+              ${fb.title}
+            </div>
+
+            <div class="feedback-canvas-box">
+              <canvas id="feedback-anim-canvas" style="width:100%;height:100%"></canvas>
+            </div>
+
+            <div class="feedback-math-details">
+              ${fb.text}
+            </div>
+
+            <div style="margin-top:6px">
+              ${fb.isFatal ? `
+                <button class="btn btn-danger" onclick="game.finishMission(false)" style="width:100%">
+                  LIMITE DE ALERTAS ATINGIDO // ABORTAR MISSÃO
+                </button>
+              ` : `
+                <button class="btn btn-teal" onclick="game.continueFromFeedback()" style="width:100%">
+                  CONTINUAR OPERAÇÃO
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+      }
+
+      continueFromFeedback() {
+        audio.play('click');
+        if (this.lastFeedback && this.lastFeedback.nextAction) this.lastFeedback.nextAction();
+        else this.advanceToNextTarget();
+      }
+
+      renderResult() {
+        const isWin = this.isVictory;
+        const m = MISSIONS_CONFIG[this.currentMissionId];
+        return `
+          <div class="results-sheet">
+            <h2 class="results-hero-title ${isWin ? 'victory' : 'defeat'}">
+              ${isWin ? 'MISSÃO CUMPRIDA // SETOR PACIFICADO' : 'MISSÃO ABORTADA // ALERTA MÁXIMO'}
+            </h2>
+
+            <!-- Debriefing Radio Bar with Manga Avatar -->
+            <div class="radio-agent-dossier" style="border-color:${isWin ? 'var(--teal)' : 'var(--red)'}">
+              <div class="manga-portrait-frame ${isWin ? 'lia' : 'assintota'}">
+                ${isWin ? `
+                  <img src="img/manga_lia.jpg" alt="Lia" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                  <div style="display:none;width:100%;height:100%">${getMangaAvatarSvg('lia')}</div>
+                ` : `
+                  <img src="img/manga_assintota.jpg" alt="Assíntota" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                  <div style="display:none;width:100%;height:100%">${getMangaAvatarSvg('assintota')}</div>
+                `}
+              </div>
+              <div class="dossier-bio" style="text-align:left">
+                <div class="dossier-name" style="color:${isWin ? 'var(--teal)' : 'var(--red)'}">
+                  ${isWin ? 'AGENTE LIA LEIBNIZ // RELATÓRIO' : 'MADAME ASSÍNTOTA // MENSAGEM INTERCEPTADA'}
+                </div>
+                <div style="font-size:12px;color:#cbd5e1;margin-top:3px">
+                  ${isWin ? '"Excelente desempenho, Agente! As equações do setor foram estabilizadas e a Cortina de Ferro matemática foi superada."' : '"Hahaha... Suas soluções divergiram rumo ao infinito. A Instabilidade continuará governando o cálculo!"'}
+                </div>
+              </div>
+            </div>
+
+            <table class="metrics-table">
+              <tr><td>MISSÃO TÁTICA</td><td>${m.title}</td></tr>
+              <tr><td>SETOR DA GUERRA FRIA</td><td>${m.codeName}</td></tr>
+              <tr><td>MODO DE COMBATE</td><td>${this.currentMode.toUpperCase()}</td></tr>
+              <tr><td>PONTUAÇÃO OBTIDA</td><td>${this.score} PTS</td></tr>
+              <tr><td>ALERTAS DISPARADOS</td><td>${this.alerts} / 3</td></tr>
+            </table>
+
+            <div class="footer-action-row" style="margin-top:8px">
+              <button class="btn btn-muted" onclick="game.goHome()" style="flex:1">MENU PRINCIPAL</button>
+              <button class="btn btn-teal" onclick="game.launchMission()" style="flex:1">JOGAR NOVAMENTE</button>
+            </div>
+          </div>
+        `;
+      }
+
+      // --- Canvas Animations ---
+      initTargetAnimations() {
+        const canvas = document.getElementById('tangent-scan-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let t = 0;
+        const loop = () => {
+          if (!document.getElementById('tangent-scan-canvas')) return;
+          t += 0.04;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          const w = canvas.width, h = canvas.height;
+
+          // Draw base integral curve
+          ctx.beginPath();
+          ctx.strokeStyle = '#283950';
+          ctx.lineWidth = 1.5;
+          for (let x = 0; x < w; x += 4) {
+            const y = h / 2 + Math.sin(x * 0.05 + t) * 7;
+            if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+
+          // Gliding tangent line (Leibniz)
+          const scanX = (Math.sin(t * 0.7) * 0.4 + 0.5) * w;
+          const scanY = h / 2 + Math.sin(scanX * 0.05 + t) * 7;
+          const slope = Math.cos(scanX * 0.05 + t) * 0.35;
+
+          ctx.beginPath();
+          ctx.strokeStyle = '#14b8a6';
+          ctx.lineWidth = 2;
+          ctx.moveTo(scanX - 20, scanY - slope * 20);
+          ctx.lineTo(scanX + 20, scanY + slope * 20);
+          ctx.stroke();
+
+          ctx.fillStyle = '#f59e0b';
+          ctx.beginPath();
+          ctx.arc(scanX, scanY, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          requestAnimationFrame(loop);
+        };
+        requestAnimationFrame(loop);
+      }
+
+      initFeedbackAnimation() {
+        const canvas = document.getElementById('feedback-anim-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const isSuccess = this.lastFeedback && this.lastFeedback.isSuccess;
+        let t = 0;
+        const loop = () => {
+          if (!document.getElementById('feedback-anim-canvas')) return;
+          t += 0.06;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          const w = canvas.width, h = canvas.height;
+
+          if (isSuccess) {
+            ctx.beginPath();
+            ctx.strokeStyle = '#14b8a6';
+            ctx.lineWidth = 2;
+            for (let x = 0; x < w; x += 4) {
+              const env = Math.exp(-x * 0.02);
+              const y = h / 2 + Math.sin(x * 0.1 - t * 2) * (h / 3) * env;
+              if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+          } else {
+            ctx.beginPath();
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 2;
+            for (let x = 0; x < w; x += 4) {
+              const div = Math.min(h / 2, Math.exp(x * 0.025) * 1.5);
+              const y = h / 2 + (x % 8 === 0 ? div : -div);
+              if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+          }
+
+          if (t < 2.5) requestAnimationFrame(loop);
+        };
+        requestAnimationFrame(loop);
+      }
+    }
+
+    const game = new EdoFilterGame();
+    window.game = game;
+    window.onload = () => game.start();
+
+    // --- Strict Auditor Self-Test across all Math Complexity Tiers ---
+    window.__selfTest = function(runs = 100) {
+      console.log(`--- AUTO-TESTE RIGOROSO EDO FILTER (${runs} BATERIAS POR MISSÃO E POR NÍVEL DE COMPLEXIDADE) ---`);
+      let totalFailures = 0;
+      const complexityTiers = [0.75, 1.0, 1.5, 2.0];
+      complexityTiers.forEach(comp => {
+        window.game.settings.mathComplexity = comp;
+        console.log(`\n>>> TESTANDO COM MATH COMPLEXITY MULTIPLIER = ${comp}x:`);
+        Object.keys(MISSIONS_CONFIG).forEach(mId => {
+          let mFails = 0;
+          const cfg = MISSIONS_CONFIG[mId];
+          for (let run = 0; run < runs; run++) {
+            const targets = cfg.buildTargets();
+            targets.forEach((t) => {
+              if (t.isDecoy) {
+                if (t.layer1.options.filter(o => o.ok).length !== 1) mFails++;
+                return;
+              }
+              if (t.layer1.options.filter(o => o.ok).length !== 1) mFails++;
+              if (t.layer2.options.filter(o => o.ok).length !== 1) mFails++;
+              if (new Set(t.layer2.options.map(o => o.text.trim())).size !== 4) mFails++;
+              if (t.layer3.options.filter(o => o.ok).length !== 1) mFails++;
+            });
+          }
+          if (mFails > 0) {
+            console.error(`Missão ${mId} (${cfg.title}) [Comp: ${comp}x]: Falhas = ${mFails}`);
+          }
+          totalFailures += mFails;
+        });
+      });
+      // Restore standard 1.0
+      window.game.settings.mathComplexity = 1.0;
+      console.log('====================================================');
+      if (totalFailures === 0) console.log('>>> [SUCESSO TOTAL] window.__selfTest(): 0 FALHAS em todos os tiers de complexidade!');
+      else console.error(`>>> [ERRO] window.__selfTest(): ${totalFailures} falhas.`);
+      return totalFailures;
+    };
+  </script>
+</body>
+</html>

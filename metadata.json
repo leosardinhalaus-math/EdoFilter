@@ -1,0 +1,8 @@
+{
+  "name": "EDO Filter",
+  "description": "Jogo tático de espionagem e resolução de Equações Diferenciais Ordinárias inspirado em thrillers covert-ops dos anos 90.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
